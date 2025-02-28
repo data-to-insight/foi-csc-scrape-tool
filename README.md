@@ -1,11 +1,15 @@
-# hmi-probation-youth-justice-scrape  
+# foi-scrape-tool 
 
-This repository contains a **scraper for HM Inspectorate of Probation Youth Justice inspection reports**, extracting structured data from published PDFs. The extracted data is compiled into a **summary dataset**, which is automatically updated and published as an HTML report. Note: We are reviewing with colleagues atm regarding how best to potentially combine historic/mis-matched grading columns to improve the summary output usefulness and display without compromising the expected gradings. 
+## Initial problem brief
+FOI requests submitted to local authorities by both private individuals and organisations are increasing in frequency. Though valid, the short time-frame requirements, and added overheads on already stretched (data)teams comes at a time-cost to those affected; more so where data data reporting is a small or single person team or that time is allocated on a part-time basis only.   
+
+Is it possible to succinctly monitor submitted FOI requests? If yes, it might be possible to (pre-emptively) develop coded responses to these for open use or gain insights from patterns of requested data. This potentially allowing solutions/efforts to be shared collaboratively between impacted local authorities. Should LA colleagues wish, Analysts could also upload/submit both requests they have recieved directly, and|or their responses to recieved FOI requests. 
+
+
 
 ## 🚀 Features  
 
-- Scrapes **only Youth Justice inspection reports** from HMI Probation  
-- Extracts **inspection ratings and outcomes** directly from PDF reports  
+- Scrapes **details from FOI requests** from public sources   
 - Outputs data in **structured CSV and HTML formats**  
 - **Setup and execution automated** via `./setup.sh`  
 - **Alpha release** – still in development, feedback welcome!  
@@ -30,12 +34,9 @@ This will:
 
 ## 🔄 Future Adaptability  
 
-The scraper **currently focuses on Youth Justice inspections**, but could be **extended** to cover other available report types, such as:  
+The scraper **currently focuses on whattheyknow wite**, but could be **extended** to cover other available sources, such as:  
 
-- 📌 **Probation services**  
-- 📌 **Joint Targeted Area Inspections (JTAI)**  
-- 📌 **Serious Further Offence Reviews**  
-- 📌 **Thematic reports**  
+- 📌 **tbc**  
 
 ---
 

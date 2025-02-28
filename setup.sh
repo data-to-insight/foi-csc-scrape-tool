@@ -1,7 +1,7 @@
 #!/bin/bash
 # chmod +x setup.sh 
 
-echo "🚀 Set up & running HMI Youth Justice Scrape..."
+echo "🚀 Set up & running FOI Scrape..."
 
 # # virtual env
 # python3 -m venv venv
@@ -18,6 +18,6 @@ pip install -r requirements.txt
 echo "✅ Done. running scrape script..."
 
 # run scrape
-python hmi_youth_justice_inspection_scrape.py
+python foi-scrape-tool.py
 
 echo "🎉 Scrape process finished!"
