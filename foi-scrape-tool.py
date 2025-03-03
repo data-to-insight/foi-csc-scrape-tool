@@ -199,7 +199,7 @@ def transform_foi_data_list_format(df):
             "".join([
                 f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '
                 f'({row["LAs with same Request"]} requests) '
-                f'<a href="{row["Request URL"]}" target="_blank">View</a></li>'
+                f'<a href="{row["Request URL"]}" target="_blank">View FOI Detail</a></li>'
                 for _, row in x.iterrows()
             ]) +
         "</ul>"
@@ -209,9 +209,177 @@ def transform_foi_data_list_format(df):
 
 
 
-def save_to_html_alternative(df, filename="index.html"):
-    """Save Df to HTML file with enhanced formatting."""
-    page_title = "Freedom of Information Requests - Childrens Services Remit"
+# def save_to_html_alternative(df, filename="index.html"):
+#     """Save Df to HTML file with enhanced formatting."""
+#     page_title = "Freedom of Information Requests - Childrens Services Remit"
+#     intro_text = (
+#         '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
+#         '<ul>'
+#         '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
+#         '<li>Local authority analyst-submitted records</li>'
+#         '</ul>'
+#         'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
+#         'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.' 
+#         'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">Standard Safeguarding Dataset (SSD)</a> and|or be a contributor to this FOI Network in order to download any of the pre-developed response queries from the <a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests">SSD tools repository</a>.<br/><br/>'
+#         'Summary data shown below is scraped|aggregated from the above source(s) where FOI requests were considered to be within or relevant to the Children\'s Services Sector<br/>'
+#         'The raw data incl. any additional data points not fitting the below web summary is available to <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/foi_requests_summary.csv">download here</a>.'
+#     )
+    
+#     disclaimer_text = (
+#         'Disclaimer:<br/>'
+#         'This summary is generated from publicly available data on the above listed sources<br/>'
+#         'Due to variations in both source(s) and request formatting, some data shown may be incomplete or inaccurate. You should confirm details before using in critical reporting.<br/>'
+#         'FOI requests into Scottish LAs, and some other related Organisations are included here for wider reference - with a view to potentially reducing this to LAs in England only at a later stage.<br/>'
+#         'To view further details about each request and context use the active FOI request links within the summary table. <br/>'
+#     )
+
+#     submit_request_text = (
+#         '<p>LA colleagues are encouraged to share both <a href="mailto:datatoinsight@gmail.com?subject=FOI%20Feedback">feedback+corrections</a> or details of any related FOI received by your Local Authority to assist and enable colleagues elsewhere.<br/>'
+#         '<a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">Email us the FOI request summary detail</a> to contribute to this resource.</p>'
+#     )
+    
+#     alternative_summary_format = ('<br/>We offer an <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/index_alt_view.html">alternative view</a> of this summary page.'
+#     )
+
+#     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
+
+#     df_html = df.to_html(index=False, escape=False)  # escape=False ensures HTML renders properly
+
+#     html_content = f"""
+#     <html>
+#     <head>
+#         <title>{page_title}</title>
+#         <style>
+#             body {{ font-family: Arial, sans-serif; margin: 20px; padding: 20px; }}
+#             .table-container {{ overflow-x: auto; max-width: 100%; }}
+#             table {{ width: 100%; border-collapse: collapse; font-size: 10pt; }}
+#             table, th, td {{ border: 1px solid #ddd; padding: 8px; }}
+#             th {{ background-color: #f2f2f2; text-align: left; }} /* Align headers left */
+#             td {{ text-align: left; }} /* Align table data left */
+#             a {{ color: blue; text-decoration: none; }}
+
+#             /* Authority Name to fit content no warap */
+#             td:nth-child(1), th:nth-child(1) {{ 
+#                 white-space: nowrap;
+#                 min-width: 100px;
+#                 max-width: 300px;
+#                 overflow: hidden;
+#                 text-overflow: ellipsis;
+#             }}
+#         </style>
+#     </head>
+
+
+#     <body>
+#         <h1>{page_title}</h1>
+#         <p>{intro_text}</p>
+#         <p>{disclaimer_text}</p>
+#         <p>{submit_request_text}</p>
+#         <p><b>Summary last updated: {adjusted_timestamp_str}</b></p>
+#         <p>{alternative_summary_format}</p>
+#         <div class="table-container">
+#             {df_html}
+#         </div>
+#     </body>
+#     </html>
+#     """
+
+#     with open(filename, "w", encoding="utf-8") as f:
+#         f.write(html_content)
+    
+#     print(f"Summary saved to {filename}")
+
+
+# def save_to_html(df, filename="index_alt_view.html"):
+#     """Save Df to HTML index pg"""
+#     page_title = "Freedom of Information Requests - Childrens Services Remit"
+#     intro_text = (
+#         '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
+#         '<ul>'
+#         '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
+#         '<li>Local authority analyst-submitted records</li>'
+#         '</ul>'
+#         'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
+#         'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.' 
+#         'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">Standard Safeguarding Dataset (SSD)</a> and|or be a contributor to this FOI Network in order to download any of the pre-developed response queries from the <a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests">SSD tools repository</a>.<br/><br/>'
+#         'Summary data shown below is scraped|aggregated from the above source(s) where FOI requests were considered to be within or relevant to the Children\'s Services Sector<br/>'
+#         'The raw data incl. any additional data points not fitting the below web summary is available to <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/foi_requests_summary.csv">download here</a>.'
+#     )
+    
+#     disclaimer_text = (
+#         'Disclaimer:<br/>'
+#         'This summary is generated from publicly available data on the above listed sources<br/>'
+#         'Due to variations in both source(s) and request formatting, some data shown may be incomplete or inaccurate. You should confirm details before using in critical reporting.<br/>'
+#         'FOI requests into Scottish LAs, and some other related Organisations are included here for wider reference - with a view to potentially reducing this to LAs in England only at a later stage.<br/>'
+#         'To view further details about each request and context use the active FOI request links within the summary table. <br/>'
+#     )
+
+#     submit_request_text = (
+#         '<p>LA colleagues are encouraged to share both <a href="mailto:datatoinsight@gmail.com?subject=FOI%20Feedback">feedback+corrections</a> or details of any related FOI received by your Local Authority to assist and enable colleagues elsewhere.<br/>'
+#         '<a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">Email us the FOI request summary detail</a> to contribute to this resource.</p>'
+#     )
+    
+#     alternative_summary_format = ('<br/>We offer an <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/index.html">alternative view</a> of this summary page.'
+#     )
+
+#     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
+    
+#     # want an active link in output for each request (potentially actual request content is copyright)
+#     df = df.copy()  
+#     df.loc[:, "Request URL Link"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">FOI Content Detail</a>')
+#     df.drop(columns=["Request URL"], inplace=True)
+
+
+#     df_html = df.to_html(index=False, escape=False)
+    
+#     html_content = f"""
+#     <html>
+#     <head>
+#         <title>{page_title}</title>
+#         <style>
+#             body {{ font-family: Arial, sans-serif; margin: 20px; padding: 20px; }}
+#             .table-container {{ overflow-x: auto; max-width: 100%; }}
+#             table {{ width: 100%; border-collapse: collapse; font-size: 10pt; }}
+#             table, th, td {{ border: 1px solid #ddd; padding: 8px; }}
+#             th {{ background-color: #f2f2f2; text-align: left; }} /* Align headers left */
+#             td {{ text-align: left; }} /* Align table data left */
+#             a {{ color: blue; text-decoration: none; }}
+
+#             /* Authority Name and Request URL Link to fit content no warap */
+#             td:nth-child(4), th:nth-child(4),  
+#             td:nth-child(7), th:nth-child(7) {{ 
+#                 white-space: nowrap; /* Prevent text wrapping */
+#                 min-width: 100px; /* Ensure minimum width */
+#                 max-width: 300px; /* Set a maximum width */
+#                 overflow: hidden; /* Hide overflow */
+#                 text-overflow: ellipsis; /* Add '...' if overflows */
+#             }}
+#         </style>
+#     </head>
+#     <body>
+#         <h1>{page_title}</h1>
+#         <p>{intro_text}</p>
+#         <p>{disclaimer_text}</p>
+#         <p>{submit_request_text}</p>
+#         <p><b>Summary last updated: {adjusted_timestamp_str}</b></p>
+#         <p>{alternative_summary_format}</p>
+#         <div class="table-container">
+#             {df_html}
+#         </div>
+#     </body>
+#     </html>
+#     """
+    
+#     with open(filename, "w", encoding="utf-8") as f:
+#         f.write(html_content)
+    
+#     print(f"Summary saved to {filename}")
+
+def save_to_html(df, filename="index.html", alternative_view=False):
+    """Save DataFrame to an HTML file with configurable formatting."""
+    
+    page_title = "Freedom of Information Requests - Children's Services Remit"
+    
     intro_text = (
         '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
         '<ul>'
@@ -219,29 +387,45 @@ def save_to_html_alternative(df, filename="index.html"):
         '<li>Local authority analyst-submitted records</li>'
         '</ul>'
         'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
-        'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.' 
-        'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">Standard Safeguarding Dataset (SSD)</a> and|or be a contributor to this FOI Network in order to download any of the pre-developed response queries from the <a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests">SSD tools repository</a>.<br/><br/>'
-        'Summary data shown below is scraped|aggregated from the above source(s) where FOI requests were considered to be within or relevant to the Children\'s Services Sector<br/>'
-        'The raw data incl. any additional data points not fitting the below web summary is available to <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/foi_requests_summary.csv">download here</a>.'
+        'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.'
+        'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">SSD</a> '
+        'and|or be a contributor to this FOI Network in order to download pre-developed response queries from the '
+        '<a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests">SSD tools repository</a>.<br/><br/>'
+        'Summary data below is aggregated from the above source(s) where FOI requests were relevant to the Children\'s Services Sector.<br/>'
+        'The raw data, including any additional fields, is available to <a href="foi_requests_summary.csv">download here</a>.'
     )
     
     disclaimer_text = (
-        'Disclaimer:<br/>'
-        'This summary is generated from publicly available data on the above listed sources<br/>'
-        'Due to variations in both source(s) and request formatting, some data shown may be incomplete or inaccurate. You should confirm details before using in critical reporting.<br/>'
-        'FOI requests into Scottish LAs, and some other related Organisations are included here for wider reference - with a view to potentially reducing this to LAs in England only at a later stage.<br/>'
-        'To view further details about each request and context use the active FOI request links within the summary table. <br/>'
+        '<b>Disclaimer:</b><br/>'
+        'This summary is generated from publicly available data from the listed sources.<br/>'
+        'Due to variations in formatting, some data may be incomplete or inaccurate. Verify before using in reporting.<br/>'
+        'FOI requests into Scottish LAs and other related organisations are included for wider reference—this may be narrowed to England-only LAs in future.<br/>'
+        'For details on each request, use the active FOI request links in the table below.<br/>'
     )
 
     submit_request_text = (
-        '<p>LA colleagues are encouraged to share both <a href="mailto:datatoinsight@gmail.com?subject=FOI%20Feedback">feedback+corrections</a> or details of any related FOI received by your Local Authority to assist and enable colleagues elsewhere.<br/>'
-        '<a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">Email us the FOI request summary detail</a> to contribute to this resource.</p>'
+        '<p>LA colleagues are encouraged to share both <a href="mailto:datatoinsight@gmail.com?subject=FOI%20Feedback">feedback+corrections</a> or '
+        '<a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">'
+        'submit new FOI request details</a> to contribute to this resource.</p>'
     )
     
-    alternative_summary_format = ('<br/>We offer an <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/index_alt_view.html">alternative view</a> of this summary page.'
-    )
+    if alternative_view: 
+        alternative_summary_format = (
+            '<br/>We offer an <a href="index_alt_view.html">alternative summary view</a> of this page.'
+            if not alternative_view else '<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
+        )
+    else:
+        alternative_summary_format = (
+            '<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
+            if not alternative_view else '<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
+        )
 
     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
+
+    # Apply format modifications for alternative view if required
+    if not alternative_view:
+        df = df.copy()  
+        df.loc[:, "Request URL"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">View FOI Detail</a>')
 
     df_html = df.to_html(index=False, escape=False)  # escape=False ensures HTML renders properly
 
@@ -254,12 +438,13 @@ def save_to_html_alternative(df, filename="index.html"):
             .table-container {{ overflow-x: auto; max-width: 100%; }}
             table {{ width: 100%; border-collapse: collapse; font-size: 10pt; }}
             table, th, td {{ border: 1px solid #ddd; padding: 8px; }}
-            th {{ background-color: #f2f2f2; text-align: left; }} /* Align headers left */
-            td {{ text-align: left; }} /* Align table data left */
+            th {{ background-color: #f2f2f2; text-align: left; }}
+            td {{ text-align: left; }}
             a {{ color: blue; text-decoration: none; }}
 
-            /* Authority Name to fit content no warap */
-            td:nth-child(1), th:nth-child(1) {{ 
+            /* Authority Name and Request URL to fit content no wrap */
+            td:nth-child(4), th:nth-child(4),  
+            td:nth-child(7), th:nth-child(7) {{ 
                 white-space: nowrap;
                 min-width: 100px;
                 max-width: 300px;
@@ -268,8 +453,6 @@ def save_to_html_alternative(df, filename="index.html"):
             }}
         </style>
     </head>
-
-
     <body>
         <h1>{page_title}</h1>
         <p>{intro_text}</p>
@@ -289,91 +472,6 @@ def save_to_html_alternative(df, filename="index.html"):
     
     print(f"Summary saved to {filename}")
 
-
-def save_to_html(df, filename="index_alt_view.html"):
-    """Save Df to HTML index pg"""
-    page_title = "Freedom of Information Requests - Childrens Services Remit"
-    intro_text = (
-        '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
-        '<ul>'
-        '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
-        '<li>Local authority analyst-submitted records</li>'
-        '</ul>'
-        'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
-        'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.' 
-        'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">Standard Safeguarding Dataset (SSD)</a> and|or be a contributor to this FOI Network in order to download any of the pre-developed response queries from the <a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests">SSD tools repository</a>.<br/><br/>'
-        'Summary data shown below is scraped|aggregated from the above source(s) where FOI requests were considered to be within or relevant to the Children\'s Services Sector<br/>'
-        'The raw data incl. any additional data points not fitting the below web summary is available to <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/foi_requests_summary.csv">download here</a>.'
-    )
-    
-    disclaimer_text = (
-        'Disclaimer:<br/>'
-        'This summary is generated from publicly available data on the above listed sources<br/>'
-        'Due to variations in both source(s) and request formatting, some data shown may be incomplete or inaccurate. You should confirm details before using in critical reporting.<br/>'
-        'FOI requests into Scottish LAs, and some other related Organisations are included here for wider reference - with a view to potentially reducing this to LAs in England only at a later stage.<br/>'
-        'To view further details about each request and context use the active FOI request links within the summary table. <br/>'
-    )
-
-    submit_request_text = (
-        '<p>LA colleagues are encouraged to share both <a href="mailto:datatoinsight@gmail.com?subject=FOI%20Feedback">feedback+corrections</a> or details of any related FOI received by your Local Authority to assist and enable colleagues elsewhere.<br/>'
-        '<a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">Email us the FOI request summary detail</a> to contribute to this resource.</p>'
-    )
-    
-    alternative_summary_format = ('<br/>We offer an <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/index.html">alternative view</a> of this summary page.'
-    )
-
-    adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
-    
-    # want an active link in output for each request (potentially actual request content is copyright)
-    df = df.copy()  
-    df.loc[:, "Request URL Link"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">FOI Content Detail</a>')
-    df.drop(columns=["Request URL"], inplace=True)
-
-
-    df_html = df.to_html(index=False, escape=False)
-    
-    html_content = f"""
-    <html>
-    <head>
-        <title>{page_title}</title>
-        <style>
-            body {{ font-family: Arial, sans-serif; margin: 20px; padding: 20px; }}
-            .table-container {{ overflow-x: auto; max-width: 100%; }}
-            table {{ width: 100%; border-collapse: collapse; font-size: 10pt; }}
-            table, th, td {{ border: 1px solid #ddd; padding: 8px; }}
-            th {{ background-color: #f2f2f2; text-align: left; }} /* Align headers left */
-            td {{ text-align: left; }} /* Align table data left */
-            a {{ color: blue; text-decoration: none; }}
-
-            /* Authority Name and Request URL Link to fit content no warap */
-            td:nth-child(4), th:nth-child(4),  
-            td:nth-child(7), th:nth-child(7) {{ 
-                white-space: nowrap; /* Prevent text wrapping */
-                min-width: 100px; /* Ensure minimum width */
-                max-width: 300px; /* Set a maximum width */
-                overflow: hidden; /* Hide overflow */
-                text-overflow: ellipsis; /* Add '...' if overflows */
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>{page_title}</h1>
-        <p>{intro_text}</p>
-        <p>{disclaimer_text}</p>
-        <p>{submit_request_text}</p>
-        <p><b>Summary last updated: {adjusted_timestamp_str}</b></p>
-        <p>{alternative_summary_format}</p>
-        <div class="table-container">
-            {df_html}
-        </div>
-    </body>
-    </html>
-    """
-    
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(html_content)
-    
-    print(f"Summary saved to {filename}")
 
 # These are the search terms used against whattheyknow site search
 search_terms = ["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", 
@@ -391,12 +489,21 @@ df_csv_output.to_csv("foi_requests_summary.csv", index=False)
 # reduce cols for ease of formatting on web
 df_html_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL"]]
 
-# HTML output 1
 df_html_output_grouped = transform_foi_data_list_format(df_html_output)
-save_to_html_alternative(df_html_output_grouped) # need to re-factor save_to_html to handle both scenarios/formats in one func
 
-# HTML output 2
-save_to_html(df_html_output)
+# # HTML output 1
+# df_html_output_grouped = transform_foi_data_list_format(df_html_output)
+# save_to_html_alternative(df_html_output_grouped) # need to re-factor save_to_html to handle both scenarios/formats in one func
+
+# # HTML output 2
+# save_to_html(df_html_output)
+
+
+# Save main/index summary page 
+save_to_html(df_html_output_grouped, filename="index.html", alternative_view=True)
+
+# Save verbose/prev view
+save_to_html(df_html_output, filename="index_alt_view.html", alternative_view=False)
 
 print("Scraping completed, saved to 'foi_requests_summary.csv' & 'index.html'")
 
