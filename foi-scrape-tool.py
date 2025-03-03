@@ -43,8 +43,26 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
     
 
     df = pd.DataFrame(all_data)
-    
+
+    # any known row/record values to explicitly remove based on 'authority name' sub-string match
+    # i.e. did we see anything in the output we just want to remove at face value. 
+    non_relevant_la_names = ["Beauchamp", "Asheldham", 
+                             "Belfast", "Omagh", "Ballymena", "Ballymoney", "Derry", 
+                             "Northern Ireland", "Education Authority, Northern Ireland",
+                             "School",  "Canal & River Trust", "Parish Council",  "Family Procedure Rule Committee", "General Register Office", "Partnership", "Natural Resources",
+                             "Hughes Hall",  "Association", "Safeguarding", "Foundation", 
+                             "Research Agency", "Statistics", "Ombudsman", "Office", "Service", "Commissioner",
+                             "University", "College", "Academy",
+                             "NSPCC", "NHS", 
+                             "Ministry of Justice", "Constabulary", "Police", "National",
+                             "Department for Education", "Department for Work and Pensions", "Department of Health", "Department of Health and Social Care", 
+                             "Government", "Revenue and Customs", "House of Commons", 
+                             "Driver and Vehicle Licensing Agency"
+                             ]
+    non_relevant_titles = ["test request", "sample FOI", "irrelevant inquiry"]
+
     if not df.empty:
+    
         # aggr an 'approx' count of how many sector related FOI each la/org has received
         # ensure consistent la/org name count
         df["normalised-authority-name"] = (
@@ -53,10 +71,41 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
             .str.replace(r"\s+", "", regex=True)
             .str.encode("ascii", "ignore").str.decode("utf-8")
         )
-        df["FOI Count"] = df.groupby("normalised-authority-name")["normalised-authority-name"].transform("count")
+
+        df["normalised-request-title"] = (
+            df["Request Title"]
+            .str.lower()
+            .str.replace(r"\s+", "", regex=True)
+            .str.encode("ascii", "ignore").str.decode("utf-8")
+        )
+
+        # filter out any known non-relevant records explicitly
+        df = df[~df["normalised-authority-name"].str.contains("|".join(non_relevant_la_names), case=False, na=False)]
+        df = df[~df["normalised-request-title"].str.contains("|".join(non_relevant_titles), case=False, na=False)]
+
+
+        # 'Date' to datetime for sorting
+        df["Date"] = pd.to_datetime(df["Date"], format="%d/%m/%Y", errors="coerce")
+
+        # most recent FOI request is kept
+        df = df.sort_values(by="Date", ascending=False)
+
+        # we're searching for term matches not scraping specific links, dups might occur
+        # this must be done prior to any aggr count(s)
+        # N.B further work needed to ensure we retain the best option here. #debug
+        df = df.drop_duplicates(subset=["normalised-authority-name", "normalised-request-title"], keep="first")
+
+
+        # aggr counts, how manyt requests per LA, how many LA's got same request
+        df["CSC FOI Count"] = df.groupby("normalised-authority-name")["normalised-authority-name"].transform("count")
+
+        # count times Request Title appears (across all authorities)
+        df["LAs with same Request Title"] = df.groupby("normalised-request-title")["normalised-request-title"].transform("count") # las's with same request
 
         # don't need helper col after this point
-        df.drop(columns=["normalised-authority-name"], inplace=True)
+        df.drop(columns=["normalised-authority-name", "normalised-request-title"], inplace=True)
+
+        # re-sort back to desired for output
         df = df.sort_values(by=["Authority Name"], ascending=True)
     
     return df
@@ -128,14 +177,16 @@ def scrape_whatdotheyknow(search_terms, base_url, max_pages):
 
 def save_to_html(df, filename="index.html"):
     """Save the DataFrame to HTML file"""
-    page_title = "Childrens Services Freedom of Information Requests"
+    page_title = "Freedom of Information Requests - Childrens Services Remit"
     intro_text = (
-        'This page provides a summary of Freedom of Information (FOI) requests made via the following sources:<br/>' 
-        '- <a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a>.<br/>'
-        '- Local authorities self-submitted records<br/><br/>'
-        'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with other local authorities who receive similar requests.<br/>'
-        'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can distribute to any analyst who might otherwise be required to invest their own time into the required response.' 
-        'In order to use the pre-created response queries, local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">Standard Safeguarding Dataset (SSD)</a>.'
+        '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
+        '<ul>'
+        '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
+        '<li>Local authorities self-submitted records</li>'
+        '</ul>'
+        'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
+        'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.' 
+        'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">Standard Safeguarding Dataset (SSD)</a> and|or be a contributor to this FOI Network in order to download any of the pre-developed response queries from the <a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests">SSD tools repository</a>.<br/><br/>'
         'Summary data shown below is scraped|aggregated from the above source(s) where FOI requests were considered to be within or relevant to the Children\'s Services Sector<br/>'
         'The raw data incl. any additional data points not fitting the below web summary is available to <a href="foi_requests.csv">download here</a>.'
     )
@@ -144,7 +195,9 @@ def save_to_html(df, filename="index.html"):
         'Disclaimer:<br/>'
         'This summary is generated from publicly available data on the above listed sources<br/>'
         'Due to variations in both source(s) and request formatting, some data shown may be incomplete or inaccurate. You should confirm details before using in critical reporting'
-        'For further details and context, please refer to the original request links. <br/>'
+        'FOI requests into Scottish LAs, and some other related Organisations are included here for wider reference - with a view to potentially reducing this to LAs in England only at a later stage.'
+
+        'For further details about each request and context, please refer to the FOI request links. <br/>'
         'Feedback or corrections are welcomed and can be sent via the project repository.'
     )
 
@@ -156,7 +209,10 @@ def save_to_html(df, filename="index.html"):
     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
     
     # want an active link in output for each request (potentially actual request content is copyright)
-    df["Request URL"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">FOI Content Details Link</a>')
+    df = df.copy()  
+    df.loc[:, "Request URL Link"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">FOI Content Detail</a>')
+    df.drop(columns=["Request URL"], inplace=True)
+
 
     df_html = df.to_html(index=False, escape=False)
     
@@ -192,21 +248,21 @@ def save_to_html(df, filename="index.html"):
     
     print(f"Summary saved to {filename}")
 
-
+# These are the search terms used against whattheyknow site search
 search_terms = ["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", 
-                "foster carer", "social workers", "adoption", "care order", "family support", "send", "special educational needs"]
+                "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs"]
 
 df = scrape_foi_requests(search_terms)
 
 
 ## Outputs
 # CSV output
-df_csv_output = df[["Status", "Date", "FOI Count", "Authority Name", "Request Title", "Request URL", "Source", "Search Term"]]
-df_csv_output.to_csv("foi_requests.csv", index=False)
+df_csv_output = df[["Status", "Date", "CSC FOI Count", "Authority Name", "Request Title", "LAs with same Request Title", "Request URL", "Source", "Search Term"]]
+df_csv_output.to_csv("foi_requests_summary.csv", index=False)
 
 # HTML output
-df_html_output = df[["Status", "Date", "FOI Count", "Authority Name", "Request Title", "Request URL"]]
+df_html_output = df[["Status", "Date", "CSC FOI Count", "Authority Name", "Request Title", "LAs with same Request Title", "Request URL"]]
 save_to_html(df_html_output)
 
-print("Scraping completed and saved to 'index.csv' and 'index.html'")
+print("Scraping completed, saved to 'foi_requests_summary.csv' & 'index.html'")
 
