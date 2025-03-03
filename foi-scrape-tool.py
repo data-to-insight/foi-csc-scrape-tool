@@ -194,16 +194,23 @@ def transform_foi_data_list_format(df):
     df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
 
     # Group by Authority Name and CSC FOIs on this LA
-    grouped_df = df.groupby(["Authority Name", "CSC FOIs on this LA"], as_index=False).apply(
-        lambda x: "<ul>" + 
-            "".join([
-                f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '
-                f'({row["LAs with same Request"]} requests) '
-                f'<a href="{row["Request URL"]}" target="_blank">View FOI Detail</a></li>'
-                for _, row in x.iterrows()
-            ]) +
-        "</ul>"
-    ).reset_index().rename(columns={0: "FOI Requests"})
+    grouped_df = (
+        df.groupby(["Authority Name", "CSC FOIs on this LA"], as_index=False)
+        .apply(
+            lambda x: pd.Series({
+                "FOI Requests": "<ul>" + "".join([
+                    f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '  # Format FOIs as list items within the LA row
+                    f'({row["LAs with same Request"]} requests) '
+                    f'<a href="{row["Request URL"]}" target="_blank">View FOI Detail</a></li>'
+                    for _, row in x.iterrows()
+                ]) + "</ul>"
+            }),
+            include_groups=False  # Explicitly exclude grouping columns (fixes deprecation warning)
+        )
+        .reset_index(drop=True)  # Remove redundant index
+    )
+
+
 
 
 
@@ -421,10 +428,36 @@ def save_to_html(df, filename="index.html", alternative_view=False):
 
     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
 
-    # Apply format modifications for alternative view if required
-    if not alternative_view:
+    # Apply different styling based on whether alternative view
+    # the REquest URL col doesnt exist in the alt view, and la name also in different position
+    if alternative_view:
+        custom_styles = """
+            /* Authority Name and Request URL to fit content no wrap */
+            td:nth-child(4), th:nth-child(4),  
+            td:nth-child(7), th:nth-child(7) { 
+                white-space: nowrap;
+                min-width: 100px;
+                max-width: 300px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        """
+    else:
+        custom_styles = """
+            /* Authority Name column in grouped format */
+            td:nth-child(1), th:nth-child(1) { 
+                white-space: nowrap;
+                min-width: 100px;
+                max-width: 300px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        """
+
+        # Apply format modifications for alternative view if required
         df = df.copy()  
         df.loc[:, "Request URL"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">View FOI Detail</a>')
+
 
     df_html = df.to_html(index=False, escape=False)  # escape=False ensures HTML renders properly
 
@@ -441,15 +474,7 @@ def save_to_html(df, filename="index.html", alternative_view=False):
             td {{ text-align: left; }}
             a {{ color: blue; text-decoration: none; }}
 
-            /* Authority Name and Request URL to fit content no wrap */
-            td:nth-child(4), th:nth-child(4),  
-            td:nth-child(7), th:nth-child(7) {{ 
-                white-space: nowrap;
-                min-width: 100px;
-                max-width: 300px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }}
+            {custom_styles}
         </style>
     </head>
     <body>
