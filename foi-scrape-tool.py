@@ -194,7 +194,7 @@ def transform_foi_data_list_format(df):
     df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
 
     # Group by Authority Name and CSC FOIs on this LA
-    grouped_df = df.groupby(["Authority Name", "CSC FOIs on this LA"]).apply(
+    grouped_df = df.groupby(["Authority Name", "CSC FOIs on this LA"], as_index=False).apply(
         lambda x: "<ul>" + 
             "".join([
                 f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '
@@ -203,7 +203,9 @@ def transform_foi_data_list_format(df):
                 for _, row in x.iterrows()
             ]) +
         "</ul>"
-    ).reset_index(name="FOI Requests")
+    ).reset_index().rename(columns={0: "FOI Requests"})
+
+
 
     return grouped_df
 
@@ -409,16 +411,13 @@ def save_to_html(df, filename="index.html", alternative_view=False):
         'submit new FOI request details</a> to contribute to this resource.</p>'
     )
     
-    if alternative_view: 
-        alternative_summary_format = (
-            '<br/>We offer an <a href="index_alt_view.html">alternative summary view</a> of this page.'
-            if not alternative_view else '<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
-        )
-    else:
-        alternative_summary_format = (
-            '<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
-            if not alternative_view else '<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
-        )
+    alternative_summary_format = (
+        f'<br/>We offer an <a href="index_alt_view.html">alternative summary view</a> of this page.'
+        if filename == "index.html" 
+        else f'<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
+    )
+
+
 
     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
 
@@ -458,7 +457,7 @@ def save_to_html(df, filename="index.html", alternative_view=False):
         <p>{intro_text}</p>
         <p>{disclaimer_text}</p>
         <p>{submit_request_text}</p>
-        <p><b>Summary last updated: {adjusted_timestamp_str}</b></p>
+        <p><b>Summary last updated: {adjusted_timestamp_str}</p>
         <p>{alternative_summary_format}</p>
         <div class="table-container">
             {df_html}
