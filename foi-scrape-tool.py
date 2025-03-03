@@ -52,14 +52,16 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
     non_relevant_la_names = ["Beauchamp", "Asheldham", 
                              "Belfast", "Omagh", "Ballymena", "Ballymoney", "Derry", 
                              "Northern Ireland", "Education Authority, Northern Ireland",
+                             "Welsh Parliament",
+                             "Village Council",
                              "School",  "Canal & River Trust", "Parish",  "Family Procedure Rule Committee", "General Register Office", "Partnership", "Natural Resources",
                              "Hughes Hall",  "Association", "Safeguarding", "Foundation", 
                              "Research Agency", "Statistics", "Ombudsman", "Office", "Service", "Commissioner",
                              "University", "College", "Academy",
-                             "NSPCC", "NHS", 
-                             "Ministry of Justice", "Constabulary", "Police", "National",
+                             "NSPCC", "NHS", "Health and Care", "Healthwatch", "Social Care Council"
+                             "Ministry of Justice", "Constabulary", "Police", "National", "Ministry of Defence",
                              "Department for Education", "Department for Work and Pensions", "Department of Health", "Department of Health and Social Care", 
-                             "Government", "Revenue and Customs", "House of Commons", 
+                             "Government", "Revenue and Customs", "House of Commons", "Supreme Court",
                              "Driver and Vehicle Licensing Agency"
                              ]
     non_relevant_titles = ["test request", "sample FOI", "irrelevant inquiry"]
