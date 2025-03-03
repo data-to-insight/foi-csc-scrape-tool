@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import time
 from datetime import datetime, timedelta
+import re
 
 # add additional sources as requ
 BASE_URLS = {
@@ -22,6 +23,7 @@ def get_soup(url, max_attempts=2, delay=2):
             if attempt < max_attempts:
                 time.sleep(delay)
             else:
+                print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
                 return None
 
 
@@ -38,9 +40,10 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
         all_data = scrape_whatdotheyknow(search_terms, base_url, max_pages)
 
     # elif source == "next data source":
-    # # template for further sources. Need associated func() also! 
+    # # template for further sources. Need associated func() also! (and safe appending into all_data)
     #     pass # 
     
+
 
     df = pd.DataFrame(all_data)
 
@@ -49,7 +52,7 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
     non_relevant_la_names = ["Beauchamp", "Asheldham", 
                              "Belfast", "Omagh", "Ballymena", "Ballymoney", "Derry", 
                              "Northern Ireland", "Education Authority, Northern Ireland",
-                             "School",  "Canal & River Trust", "Parish Council",  "Family Procedure Rule Committee", "General Register Office", "Partnership", "Natural Resources",
+                             "School",  "Canal & River Trust", "Parish",  "Family Procedure Rule Committee", "General Register Office", "Partnership", "Natural Resources",
                              "Hughes Hall",  "Association", "Safeguarding", "Foundation", 
                              "Research Agency", "Statistics", "Ombudsman", "Office", "Service", "Commissioner",
                              "University", "College", "Academy",
@@ -68,39 +71,44 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
         df["normalised-authority-name"] = (
             df["Authority Name"]
             .str.lower()
-            .str.replace(r"\s+", "", regex=True)
-            .str.encode("ascii", "ignore").str.decode("utf-8")
+            .str.replace(r"\s+", " ", regex=True)  # multiple spaces to single space
+            .str.encode("ascii", "ignore").str.decode("utf-8")  # Encode to ASCII for consistency
+            .str.strip()  # leading/trailing spaces
         )
-
         df["normalised-request-title"] = (
             df["Request Title"]
             .str.lower()
-            .str.replace(r"\s+", "", regex=True)
+            .str.replace(r"\s+", " ", regex=True)  
             .str.encode("ascii", "ignore").str.decode("utf-8")
         )
 
-        # filter out any known non-relevant records explicitly
-        df = df[~df["normalised-authority-name"].str.contains("|".join(non_relevant_la_names), case=False, na=False)]
-        df = df[~df["normalised-request-title"].str.contains("|".join(non_relevant_titles), case=False, na=False)]
+
+        # Escape special chars in names to prevent regex issues
+        pattern_la = "|".join(map(re.escape, non_relevant_la_names))
+        pattern_titles = "|".join(map(re.escape, non_relevant_titles))
+
+        # Remove rows where authority name or request title contains unwanted words(defined above)
+        df = df[~df["normalised-authority-name"].str.contains(pattern_la, case=False, na=False, regex=True)]
+        df = df[~df["normalised-request-title"].str.contains(pattern_titles, case=False, na=False, regex=True)]
 
 
         # 'Date' to datetime for sorting
-        df["Date"] = pd.to_datetime(df["Date"], format="%d/%m/%Y", errors="coerce")
+        df["Request Date"] = pd.to_datetime(df["Request Date"], format="%d/%m/%Y", errors="coerce")
 
         # most recent FOI request is kept
-        df = df.sort_values(by="Date", ascending=False)
+        df = df.sort_values(by="Request Date", ascending=False)
+        df["Request Date"] = df["Request Date"].dt.strftime("%d/%m/%Y") # back to string in "DD/MM/YYYY" format
 
         # we're searching for term matches not scraping specific links, dups might occur
         # this must be done prior to any aggr count(s)
         # N.B further work needed to ensure we retain the best option here. #debug
         df = df.drop_duplicates(subset=["normalised-authority-name", "normalised-request-title"], keep="first")
 
-
         # aggr counts, how manyt requests per LA, how many LA's got same request
-        df["CSC FOI Count"] = df.groupby("normalised-authority-name")["normalised-authority-name"].transform("count")
+        df["CSC FOIs on this LA"] = df.groupby("normalised-authority-name")["normalised-authority-name"].transform("count")
 
         # count times Request Title appears (across all authorities)
-        df["LAs with same Request Title"] = df.groupby("normalised-request-title")["normalised-request-title"].transform("count") # las's with same request
+        df["LAs with same Request"] = df.groupby("normalised-request-title")["normalised-request-title"].transform("count") # las's with same request
 
         # don't need helper col after this point
         df.drop(columns=["normalised-authority-name", "normalised-request-title"], inplace=True)
@@ -164,7 +172,7 @@ def scrape_whatdotheyknow(search_terms, base_url, max_pages):
                         "Authority URL": authority_url,
                         "Authority ID": authority_url_cleaned,
                         "Status": request_status,
-                        "Date": request_date
+                        "Request Date": request_date
                     })
                 except Exception as e:
                     print(f"Error parsing result: {e}")
@@ -182,7 +190,7 @@ def save_to_html(df, filename="index.html"):
         '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
         '<ul>'
         '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
-        '<li>Local authorities self-submitted records</li>'
+        '<li>Local authority analyst-submitted records</li>'
         '</ul>'
         'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
         'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.' 
@@ -194,16 +202,14 @@ def save_to_html(df, filename="index.html"):
     disclaimer_text = (
         'Disclaimer:<br/>'
         'This summary is generated from publicly available data on the above listed sources<br/>'
-        'Due to variations in both source(s) and request formatting, some data shown may be incomplete or inaccurate. You should confirm details before using in critical reporting'
-        'FOI requests into Scottish LAs, and some other related Organisations are included here for wider reference - with a view to potentially reducing this to LAs in England only at a later stage.'
-
-        'For further details about each request and context, please refer to the FOI request links. <br/>'
-        'Feedback or corrections are welcomed and can be sent via the project repository.'
+        'Due to variations in both source(s) and request formatting, some data shown may be incomplete or inaccurate. You should confirm details before using in critical reporting.<br/>'
+        'FOI requests into Scottish LAs, and some other related Organisations are included here for wider reference - with a view to potentially reducing this to LAs in England only at a later stage.<br/>'
+        'To view further details about each request and context use the active FOI request links within the summary table. <br/>'
     )
 
     submit_request_text = (
-        '<p>Share details of an FOI received by your Local Authority to enable others:<br/>'
-        'Email us with the request detail to add to this page: <a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">Email D2I</a>.</p>'
+        '<p>LA colleagues are encouraged to share both <a href="mailto:datatoinsight@gmail.com?subject=FOI%20Feedback">feedback+corrections</a> or details of any related FOI received by your Local Authority to assist and enable colleagues elsewhere.<br/>'
+        '<a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">Email us the FOI request summary detail</a> to contribute to this resource.</p>'
     )
     
     adjusted_timestamp_str = (datetime.now() + timedelta(hours=1)).strftime("%d %B %Y %H:%M")
@@ -228,6 +234,16 @@ def save_to_html(df, filename="index.html"):
             th {{ background-color: #f2f2f2; text-align: left; }} /* Align headers left */
             td {{ text-align: left; }} /* Align table data left */
             a {{ color: blue; text-decoration: none; }}
+
+            /* Authority Name and Request URL Link to fit content no warap */
+            td:nth-child(4), th:nth-child(4),  
+            td:nth-child(7), th:nth-child(7) {{ 
+                white-space: nowrap; /* Prevent text wrapping */
+                min-width: 100px; /* Ensure minimum width */
+                max-width: 300px; /* Set a maximum width */
+                overflow: hidden; /* Hide overflow */
+                text-overflow: ellipsis; /* Add '...' if overflows */
+            }}
         </style>
     </head>
     <body>
@@ -257,11 +273,11 @@ df = scrape_foi_requests(search_terms)
 
 ## Outputs
 # CSV output
-df_csv_output = df[["Status", "Date", "CSC FOI Count", "Authority Name", "Request Title", "LAs with same Request Title", "Request URL", "Source", "Search Term"]]
+df_csv_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "Source", "Search Term"]]
 df_csv_output.to_csv("foi_requests_summary.csv", index=False)
 
 # HTML output
-df_html_output = df[["Status", "Date", "CSC FOI Count", "Authority Name", "Request Title", "LAs with same Request Title", "Request URL"]]
+df_html_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL"]]
 save_to_html(df_html_output)
 
 print("Scraping completed, saved to 'foi_requests_summary.csv' & 'index.html'")
