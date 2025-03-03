@@ -198,7 +198,7 @@ def save_to_html(df, filename="index.html"):
         'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.' 
         'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">Standard Safeguarding Dataset (SSD)</a> and|or be a contributor to this FOI Network in order to download any of the pre-developed response queries from the <a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests">SSD tools repository</a>.<br/><br/>'
         'Summary data shown below is scraped|aggregated from the above source(s) where FOI requests were considered to be within or relevant to the Children\'s Services Sector<br/>'
-        'The raw data incl. any additional data points not fitting the below web summary is available to <a href="foi_requests_summary.csv">download here</a>.'
+        'The raw data incl. any additional data points not fitting the below web summary is available to <a href="https://github.com/data-to-insight/foi-scrape-tool/blob/main/foi_requests_summary.csv">download here</a>.'
     )
     
     disclaimer_text = (
