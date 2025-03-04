@@ -5,39 +5,110 @@ import time
 from datetime import datetime, timedelta
 import re
 
-# add additional sources as requ
+import certifi
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # intrim - mask Unverified HTTPS request warns
+
+DEBUG = False # limit scrape depth and search breadth for testing
+
+
+# add sources 
 BASE_URLS = {
-    "WhatDoTheyKnow": "https://www.whatdotheyknow.com/search/"
+    "WhatDoTheyKnow": "https://www.whatdotheyknow.com/search/",
+    "HastingsCouncil": "https://www.hastings.gov.uk/my-council/freedom-of-information/date/"
 }
 
+## original
+# def get_soup(url, max_attempts=2, delay=2):
+#     """Fetch BeautifulSoup object from a given URL with retry mechanism."""
+#     for attempt in range(1, max_attempts + 1):
+#         try:
+#             response = requests.get(
+#                 url,
+#                 headers={"User-Agent": "Mozilla/5.0"},
+#                 timeout=10,
+#             )
+#             response.raise_for_status()
+#             return BeautifulSoup(response.content, "html.parser")
+#         except requests.RequestException as e:
+#             print(f"Attempt {attempt} failed: {e}")
+#             if attempt < max_attempts:
+#                 time.sleep(delay)
+#             else:
+#                 print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
+#                 return None
 
+# # secure workaround for problem ssl cert at hastings
+# def get_soup(url, max_attempts=2, delay=2):
+#     """Fetch BeautifulSoup object from a given URL with retry mechanism and SSL verification."""
+
+#     for attempt in range(1, max_attempts + 1):
+#         try:
+#             response = requests.get(
+#                 url,
+#                 headers={"User-Agent": "Mozilla/5.0"},
+#                 timeout=10,
+#                 verify=certifi.where()  # SSL certificate verification
+#             )
+#             response.raise_for_status()
+#             return BeautifulSoup(response.content, "html.parser")
+
+#         except requests.exceptions.SSLError as ssl_err:
+#             print(f"SSL Error on attempt {attempt}: {ssl_err}. Trying again...")
+
+#         except requests.RequestException as e:
+#             print(f"Attempt {attempt} failed: {e}")
+
+#         if attempt < max_attempts:
+#             time.sleep(delay)
+#         else:
+#             print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
+#             return None
+
+
+# NON-secure workaround for problem ssl cert at hastings
 def get_soup(url, max_attempts=2, delay=2):
-    """Fetch BeautifulSoup object from a given URL with retry mechanism."""
+    """Fetch BeautifulSoup object from a given URL with retry mechanism (SSL verification disabled)."""
     for attempt in range(1, max_attempts + 1):
         try:
-            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+            response = requests.get(
+                url,
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=10,
+                verify=False  # Disable SSL verification
+            )
             response.raise_for_status()
             return BeautifulSoup(response.content, "html.parser")
+
+        except requests.exceptions.SSLError as ssl_err:
+            print(f"SSL Error on attempt {attempt}: {ssl_err}. Trying again...")
+
         except requests.RequestException as e:
             print(f"Attempt {attempt} failed: {e}")
-            if attempt < max_attempts:
-                time.sleep(delay)
-            else:
-                print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
-                return None
 
+        if attempt < max_attempts:
+            time.sleep(delay)
+        else:
+            print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
+            return None
 
 def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
     """Handles scraping logic for a given FOI request source.
     only defaults to wdtk as this is our starting/default point for source data atm"""
+
+
     if source not in BASE_URLS:
         raise ValueError("Unsupported source. Choose from: " + ", ".join(BASE_URLS.keys()))
+    # if source not in BASE_URLS and source != "HastingsCouncil":
+    #     raise ValueError("Unsupported source. Choose from: " + ", ".join(BASE_URLS.keys()))
     
     base_url = BASE_URLS[source]
     all_data = []
     
     if source == "WhatDoTheyKnow":
         all_data = scrape_whatdotheyknow(search_terms, base_url, max_pages)
+    elif source == "HastingsCouncil":
+        all_data.extend(scrape_hastings_foi(search_terms))
 
     # elif source == "next data source":
     # # template for further sources. Need associated func() also! (and safe appending into all_data)
@@ -110,7 +181,7 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None):
         df["CSC FOIs on this LA"] = df.groupby("normalised-authority-name")["normalised-authority-name"].transform("count")
 
         # count times Request Title appears (across all authorities)
-        df["LAs with same Request"] = df.groupby("normalised-request-title")["normalised-request-title"].transform("count") # las's with same request
+        df["LAs with same Request"] = df.groupby("normalised-request-title")["normalised-request-title"].transform("count") # las's with same request (better if we could apply FOIRs!)
 
         # don't need helper col after this point
         df.drop(columns=["normalised-authority-name", "normalised-request-title"], inplace=True)
@@ -182,11 +253,93 @@ def scrape_whatdotheyknow(search_terms, base_url, max_pages):
             page += 1
             time.sleep(2)  # Avoid overloading the site
     
-            # # testing limiter # debug
-            # if page == 2:
-            #     break
+            # debug
+            if DEBUG and page == 2: break
+
 
     return all_data
+
+
+
+def scrape_hastings_foi(search_terms, base_url="https://www.hastings.gov.uk/my-council/freedom-of-information/date/", years=None):
+    """Scrapes FOI requests from Hastings Council's FOI request listing pages."""
+
+    if years is None:
+        years = [2025, 2024, 2023]  # Define the years to scrape
+
+    all_data = []
+
+    for year in years:
+        year_url = f"{base_url}?year={year}"
+        print(f"Scraping FOI requests for {year}: {year_url}")
+
+        soup = get_soup(year_url)
+        if not soup:
+            continue  # Skip if failed to fetch
+
+        # Find all FOI request links and titles
+        foi_entries = soup.select("#FoiList ul li a")  # Select all FOI links within the list
+
+        for entry in foi_entries:
+            foi_title = entry.get("title", "").strip()
+            foi_id = entry.get("href", "").strip()
+            foi_url = f"{base_url}{foi_id}" if foi_id else None
+
+            # Check if title contains any of our search terms
+            if any(term.lower() in foi_title.lower() for term in search_terms) and foi_url:
+                print(f"Processing relevant FOI request: {foi_title} ({foi_url})")
+
+                foi_soup = get_soup(foi_url)
+                if not foi_soup:
+                    continue
+
+                # Extract request ID
+                request_id = foi_soup.find("h1").text.strip().replace("FOI request (", "").replace(")", "")
+
+                # Extract request title
+                request_title = foi_soup.find("h2").text.strip()
+
+                # Extract request date (first date after 'Requested')
+                request_date = None
+                main_div = foi_soup.find("div", class_="main")
+                if main_div:
+                    date_text = main_div.find(string=re.compile(r"Requested", re.IGNORECASE))
+                    if date_text:
+                        date_match = re.search(r"(\d{1,2} \w+ \d{4})", date_text)
+                        if date_match:
+                            request_date = datetime.strptime(date_match.group(1), "%d %B %Y").strftime("%d/%m/%Y")
+
+                # Extract status from "Response" section
+                status = "Successful"  # Default assumption
+                response_heading = main_div.find(re.compile(r"^h\d$"), string=re.compile(r"Response", re.IGNORECASE))
+
+                if response_heading:
+                    response_text = response_heading.find_next_sibling().text.strip().lower()
+
+                    if "information not held" in response_text:
+                        status = "Information not held"
+                    elif any(word in response_text for word in ["refused", "refusal"]):
+                        status = "Refused"
+
+                # Append structured data
+                all_data.append({
+                    "Source": "Hastings Council",
+                    "Search Term": next((term for term in search_terms if term.lower() in foi_title.lower()), None),
+                    "Request Title": request_title,
+                    "Request URL": foi_url,
+                    "Request URL Cleaned": foi_id.replace("?id=", ""),
+                    "Authority Name": "Hastings Borough Council",
+                    "Authority URL": "https://www.hastings.gov.uk",
+                    "Authority ID": "hastings_borough_council",
+                    "Status": status,
+                    "Request Date": request_date,
+                })
+
+                # Avoid excessive requests
+                time.sleep(2)
+
+    return all_data
+
 
 
 def transform_foi_data_list_format(df):
@@ -212,10 +365,6 @@ def transform_foi_data_list_format(df):
         .reset_index(drop=True)  # Remove redundant index
     )
 
-
-
-
-
     return grouped_df
 
 
@@ -226,50 +375,50 @@ def assign_ssd_foi_response_link(df):
     within the SSD structure to enable analysts to download what they need to respond. 
     Currently, this just adds an empty col for future implementation.
     """
-    df["FOI Response [SSD]"] = ""  # Placeholder column, logic to be implemented later
+    # Add placeholder cols if don't exist
+    if "FOIR" not in df.columns:
+        df.insert(0, "FOIR", "")  # first col
+
+    if "SSD-FOIR" not in df.columns:
+        df.insert(len(df.columns), "SSD-FOIR", 
+                '<a href="https://github.com/data-to-insight/ssd-data-model/tree/main/tools-ssd_foi_requests" target="_blank">SSD-Response</a>'
+        )  # Insert as the last column with default link
+
+
     return df
 
 
 
 import pandas as pd
 
-def import_append_la_foi(df, extra_data_file="extra_data.csv"):
+def import_append_la_foi(external_data_file="submitted_foi.csv"):
     """
-    Imports additional FOI data submitted by LA colleagues from CSV and appends to main df
+    Imports additional FOI data submitted by LA colleagues from CSV.
 
     Args:
-        df (pd.DataFrame): main/scraped FOI df
-        extra_data_file (str): Path to CSV file containing extra FOIs
+        external_data_file (str): Path to CSV file containing extra FOIs.
 
     Returns:
-        pd.DataFrame: Updated df with extra FOI data appended (if available)
+        pd.DataFrame: The imported FOI DataFrame (if available), or an empty DataFrame if not.
     """
 
     try:
-        extra_df = pd.read_csv(extra_data_file, dtype=str)  # as str to prevent type errors
+        extra_df = pd.read_csv(external_data_file, dtype=str)  # Read all as strings to avoid type issues
 
-        # if file contains headers but no rows
-        if extra_df.shape[0] == 0:  
-            print(f"Extra data file '{extra_data_file}' contains headers but no data. Skip merge")
-            return df  # Return orig df without changes
+        if extra_df.empty:
+            print(f"Extra data file '{external_data_file}' contains headers but no data. Returning empty DataFrame.")
+            return pd.DataFrame(columns=extra_df.columns)  # Return empty df
 
-        print(f"Loaded additional FOI data from {extra_data_file}. Merging...")
-
-        # Concat new FOI data
-        # dfs have same columns, fill missing with NaN
-        all_columns = list(set(df.columns).union(set(extra_df.columns)))  # unique col names
-        df = df.reindex(columns=all_columns)  # main df has all cols
-        extra_df = extra_df.reindex(columns=all_columns)  # import df has all cols
-
-        # Concat dfs, keep col order
-        df = pd.concat([df, extra_df], ignore_index=True)
+        print(f"Loaded additional FOI data from {external_data_file}.")
+        return extra_df  # Return new df
 
     except FileNotFoundError:
-        print(f"No extra data file found: {extra_data_file}. Skipping additional data merge")
+        print(f"No extra data file found: {external_data_file}. Returning empty DataFrame.")
     except pd.errors.EmptyDataError:
-        print(f"Extra data file '{extra_data_file}' is empty (no headers or rows). Skipping merge")
+        print(f"Extra data file '{external_data_file}' is empty (no headers or rows). Returning empty DataFrame.")
 
-    return df
+    return pd.DataFrame()  # always returns df
+
 
 
 
@@ -446,10 +595,11 @@ def save_to_html(df, filename="index.html", alternative_view=False):
     page_title = "Freedom of Information Requests - Children's Services Remit"
     
     intro_text = (
-        '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
+        '<p>This page provides a summary of Freedom of Information (FOI) requests published via the following sources:</p>'
         '<ul>'
         '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
-        '<li>Local authority analyst-submitted records [pending]</li>'
+        '<li><a href="https://www.hastings.gov.uk/">hastings.gov.uk/</a></li>'
+        '<li>Local authority (colleague-)submitted records</li>'
         '</ul>'
         'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
         'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.'
@@ -462,10 +612,10 @@ def save_to_html(df, filename="index.html", alternative_view=False):
     
     disclaimer_text = (
         '<b>Disclaimer:</b><br/>'
-        'This summary is generated from publicly available data from the listed sources.<br/>'
-        'Due to variations in formatting, some data may be incomplete or inaccurate. Verify before using in reporting.<br/>'
+        'This summary is generated from publicly available data from the listed sources. Verify before using in reporting.<br/>'
+        'Due to variations in formatting, some data may be incomplete or inaccurate and some FOI Ref/IDs are not always available. <br/>'
         'FOI requests into Scottish LAs and other related organisations are included for wider reference—this may be narrowed to England-only LAs in future.<br/>'
-        'For details on each request, use the active FOI request links in the table below.<br/>'
+        'For details on each request, use the active FOI Request URL links in the table below.<br/>'
     )
 
     submit_request_text = (
@@ -559,23 +709,35 @@ def save_to_html(df, filename="index.html", alternative_view=False):
 search_terms = ["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", 
                 "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs"]
 
+if DEBUG:
+    search_terms = ["looked after children", "care leavers", "child fostering"]
+
+
 
 
 # Generate FOI data records
-df = scrape_foi_requests(search_terms) # scraped FOIs from web
-df = import_append_la_foi(df) # add any LA sent FOIs from csv file
+df_whatdotheyknow = scrape_foi_requests(search_terms) # scraped FOIs from web
+df_hastings = scrape_foi_requests(search_terms, source="HastingsCouncil") # scraped FOIs from Hastings Council
+df_la_submitted = import_append_la_foi() # LA submitted FOIs from csv file
 
+# Combine sources
+df = pd.concat([df_whatdotheyknow, df_hastings, df_la_submitted], ignore_index=True)
+
+
+
+
+# Not yet in operation as no FOI response solutions exist yet in SSD
 df = assign_ssd_foi_response_link(df)  # Add placeholder SSD FOI Query|Code Link col
 
 
 ## Outputs
 # CSV output
-df_csv_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "Source", "Search Term", "FOI Response [SSD]"]]
+df_csv_output = df[["FOIR", "Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "Source", "Search Term", "SSD-FOIR"]]
 df_csv_output.to_csv("foi_requests_summary.csv", index=False)
 
 
 # reduce cols for ease of formatting on web
-df_html_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "FOI Response [SSD]"]]
+df_html_output = df[["FOIR", "Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "SSD-FOIR"]]
 
 df_html_output_grouped = transform_foi_data_list_format(df_html_output)
 
