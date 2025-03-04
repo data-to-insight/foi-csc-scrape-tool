@@ -589,18 +589,29 @@ def import_append_la_foi(external_data_file="submitted_foi.csv"):
     
 #     print(f"Summary saved to {filename}")
 
+from urllib.parse import urlparse
+
+def extract_domain(url):
+    """Extract main domain from URL, removing www. and any path/query params."""
+    netloc = urlparse(url).netloc  # clean/grab domain and tld  e.g. 'www.whatdotheyknow.com'
+    return netloc.replace("www.", "")  # Rem 'www.' if exists
+
 def save_to_html(df, filename="index.html", alternative_view=False):
     """Save DataFrame to an HTML file with configurable formatting."""
     
     page_title = "Freedom of Information Requests - Children's Services Remit"
-    
+
+    # Generate sources list from BASE_URLS
+    sources_list = "".join(
+        f'<li><a href="{url}">{extract_domain(url)}</a></li>'
+        for url in BASE_URLS.values()
+    )
+    # Append LA submitted record list item(this never in BASE_URLS)
+    sources_list += '<li>Local authority (colleague-)submitted records</li>'
+
     intro_text = (
         '<p>This page provides a summary of Freedom of Information (FOI) requests published via the following sources:</p>'
-        '<ul>'
-        '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
-        '<li><a href="https://www.hastings.gov.uk/">hastings.gov.uk/</a></li>'
-        '<li>Local authority (colleague-)submitted records</li>'
-        '</ul>'
+        f'<ul>{sources_list}</ul>'
         'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
         'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.'
         'Local authorities will need to have deployed the Standard Safeguarding Dataset (SSD) <a href="https://data-to-insight.github.io/ssd-data-model/">SSD</a> '
@@ -625,9 +636,9 @@ def save_to_html(df, filename="index.html", alternative_view=False):
     )
     
     alternative_summary_format = (
-        f'<br/>We offer an <a href="index_alt_view.html">alternative summary view</a> of this page.'
+        f'<br/>We offer an <a href="index_alt_view.html">alternative summary view</a> of this page with additional/verbose detail.'
         if filename == "index.html" 
-        else f'<br/>We offer an <a href="index.html">alternative summary view</a> of this page.'
+        else f'<br/>We offer an <a href="index.html">alternative summary view</a> of this page grouped by LA.'
     )
 
 
