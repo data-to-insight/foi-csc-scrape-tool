@@ -12,7 +12,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # intrim - m
 DEBUG = False # limit scrape depth and search breadth for testing
 
 
-# add sources 
+# add sources / 
 BASE_URLS = {
     "WhatDoTheyKnow": "https://www.whatdotheyknow.com/search/",
     "HastingsCouncil": "https://www.hastings.gov.uk/my-council/freedom-of-information/date/"
@@ -38,33 +38,6 @@ BASE_URLS = {
 #                 print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
 #                 return None
 
-# # secure workaround for problem ssl cert at hastings
-# def get_soup(url, max_attempts=2, delay=2):
-#     """Fetch BeautifulSoup object from a given URL with retry mechanism and SSL verification."""
-
-#     for attempt in range(1, max_attempts + 1):
-#         try:
-#             response = requests.get(
-#                 url,
-#                 headers={"User-Agent": "Mozilla/5.0"},
-#                 timeout=10,
-#                 verify=certifi.where()  # SSL certificate verification
-#             )
-#             response.raise_for_status()
-#             return BeautifulSoup(response.content, "html.parser")
-
-#         except requests.exceptions.SSLError as ssl_err:
-#             print(f"SSL Error on attempt {attempt}: {ssl_err}. Trying again...")
-
-#         except requests.RequestException as e:
-#             print(f"Attempt {attempt} failed: {e}")
-
-#         if attempt < max_attempts:
-#             time.sleep(delay)
-#         else:
-#             print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
-#             return None
-
 
 # NON-secure workaround for problem ssl cert at hastings
 def get_soup(url, max_attempts=2, delay=2):
@@ -76,6 +49,8 @@ def get_soup(url, max_attempts=2, delay=2):
                 headers={"User-Agent": "Mozilla/5.0"},
                 timeout=10,
                 verify=False  # Disable SSL verification
+                #  verify=certifi.where()  # SSL certificate verification
+
             )
             response.raise_for_status()
             return BeautifulSoup(response.content, "html.parser")
