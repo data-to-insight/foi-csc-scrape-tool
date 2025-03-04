@@ -250,18 +250,24 @@ def import_append_la_foi(df, extra_data_file="extra_data.csv"):
 
         # if file contains headers but no rows
         if extra_df.shape[0] == 0:  
-            print(f"Extra data file '{extra_data_file}' contains headers but no data. Skipping merge.")
+            print(f"Extra data file '{extra_data_file}' contains headers but no data. Skip merge")
             return df  # Return orig df without changes
 
-        print(f"Successfully loaded additional FOI data from {extra_data_file}. Merging...")
+        print(f"Loaded additional FOI data from {extra_data_file}. Merging...")
 
         # Concat new FOI data
+        # dfs have same columns, fill missing with NaN
+        all_columns = list(set(df.columns).union(set(extra_df.columns)))  # unique col names
+        df = df.reindex(columns=all_columns)  # main df has all cols
+        extra_df = extra_df.reindex(columns=all_columns)  # import df has all cols
+
+        # Concat dfs, keep col order
         df = pd.concat([df, extra_df], ignore_index=True)
 
     except FileNotFoundError:
-        print(f"No extra data file found: {extra_data_file}. Skipping additional data merge.")
+        print(f"No extra data file found: {extra_data_file}. Skipping additional data merge")
     except pd.errors.EmptyDataError:
-        print(f"Extra data file '{extra_data_file}' is empty (no headers or rows). Skipping merge.")
+        print(f"Extra data file '{extra_data_file}' is empty (no headers or rows). Skipping merge")
 
     return df
 
