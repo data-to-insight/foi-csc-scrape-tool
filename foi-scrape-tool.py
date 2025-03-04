@@ -182,8 +182,10 @@ def scrape_whatdotheyknow(search_terms, base_url, max_pages):
             page += 1
             time.sleep(2)  # Avoid overloading the site
     
-            if page == 2:
-                break
+            # # testing limiter # debug
+            # if page == 2:
+            #     break
+
     return all_data
 
 
@@ -201,7 +203,7 @@ def transform_foi_data_list_format(df):
                 "FOI Requests": "<ul>" + "".join([
                     f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '  # Format FOIs as list items within the LA row
                     f'({row["LAs with same Request"]} requests) '
-                    f'<a href="{row["Request URL"]}" target="_blank">View FOI Detail</a></li>'
+                    f'<a href="{row["Request URL"]}" target="_blank">View FOI</a></li>'
                     for _, row in x.iterrows()
                 ]) + "</ul>"
             }),
@@ -215,6 +217,54 @@ def transform_foi_data_list_format(df):
 
 
     return grouped_df
+
+
+
+def assign_ssd_foi_response_link(df):
+    """
+    Placeholder function to assign a url link to the associated SSD FOI Query resource, 
+    within the SSD structure to enable analysts to download what they need to respond. 
+    Currently, this just adds an empty col for future implementation.
+    """
+    df["FOI Response [SSD]"] = ""  # Placeholder column, logic to be implemented later
+    return df
+
+
+
+import pandas as pd
+
+def import_append_la_foi(df, extra_data_file="extra_data.csv"):
+    """
+    Imports additional FOI data submitted by LA colleagues from CSV and appends to main df
+
+    Args:
+        df (pd.DataFrame): main/scraped FOI df
+        extra_data_file (str): Path to CSV file containing extra FOIs
+
+    Returns:
+        pd.DataFrame: Updated df with extra FOI data appended (if available)
+    """
+
+    try:
+        extra_df = pd.read_csv(extra_data_file, dtype=str)  # as str to prevent type errors
+
+        # if file contains headers but no rows
+        if extra_df.shape[0] == 0:  
+            print(f"Extra data file '{extra_data_file}' contains headers but no data. Skipping merge.")
+            return df  # Return orig df without changes
+
+        print(f"Successfully loaded additional FOI data from {extra_data_file}. Merging...")
+
+        # Concat new FOI data
+        df = pd.concat([df, extra_df], ignore_index=True)
+
+    except FileNotFoundError:
+        print(f"No extra data file found: {extra_data_file}. Skipping additional data merge.")
+    except pd.errors.EmptyDataError:
+        print(f"Extra data file '{extra_data_file}' is empty (no headers or rows). Skipping merge.")
+
+    return df
+
 
 
 
@@ -393,7 +443,7 @@ def save_to_html(df, filename="index.html", alternative_view=False):
         '<p>This page provides a summary of Freedom of Information (FOI) requests made via the following sources:</p>'
         '<ul>'
         '<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a></li>'
-        '<li>Local authority analyst-submitted records</li>'
+        '<li>Local authority analyst-submitted records [pending]</li>'
         '</ul>'
         'By creating an automated/timely collated resource of FOI requests, we enable the potential to create the responses/development needed once and share it with any other local authorities who receive similar requests.<br/>'
         'FOI requests are regularly submitted to multiple Local Authorities concurrently. By developing the required response query/data summary for one LA, we can then offer on-demand access to any analyst who might receive the same or similar request.'
@@ -434,10 +484,12 @@ def save_to_html(df, filename="index.html", alternative_view=False):
         custom_styles = """
             /* Authority Name and Request URL to fit content no wrap */
             td:nth-child(4), th:nth-child(4),  
-            td:nth-child(7), th:nth-child(7) { 
+            td:nth-child(5), th:nth-child(5),
+            td:nth-child(7), th:nth-child(7) {
                 white-space: nowrap;
-                min-width: 100px;
-                max-width: 300px;
+                display: block;
+                min-width: 80px;
+                max-width: 250px;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
@@ -447,7 +499,7 @@ def save_to_html(df, filename="index.html", alternative_view=False):
             /* Authority Name column in grouped format */
             td:nth-child(1), th:nth-child(1) { 
                 white-space: nowrap;
-                min-width: 100px;
+                min-width: 80px;
                 max-width: 300px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -456,7 +508,7 @@ def save_to_html(df, filename="index.html", alternative_view=False):
 
         # Apply format modifications for alternative view if required
         df = df.copy()  
-        df.loc[:, "Request URL"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">View FOI Detail</a>')
+        df.loc[:, "Request URL"] = df["Request URL"].apply(lambda x: f'<a href="{x}" target="_blank">View FOI</a>')
 
 
     df_html = df.to_html(index=False, escape=False)  # escape=False ensures HTML renders properly
@@ -501,17 +553,23 @@ def save_to_html(df, filename="index.html", alternative_view=False):
 search_terms = ["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", 
                 "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs"]
 
-df = scrape_foi_requests(search_terms)
+
+
+# Generate FOI data records
+df = scrape_foi_requests(search_terms) # scraped FOIs from web
+df = import_append_la_foi(df) # add any LA sent FOIs from csv file
+
+df = assign_ssd_foi_response_link(df)  # Add placeholder SSD FOI Query|Code Link col
 
 
 ## Outputs
 # CSV output
-df_csv_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "Source", "Search Term"]]
+df_csv_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "Source", "Search Term", "FOI Response [SSD]"]]
 df_csv_output.to_csv("foi_requests_summary.csv", index=False)
 
 
 # reduce cols for ease of formatting on web
-df_html_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL"]]
+df_html_output = df[["Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "FOI Response [SSD]"]]
 
 df_html_output_grouped = transform_foi_data_list_format(df_html_output)
 
