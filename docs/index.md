@@ -1,12 +1,15 @@
 
 # Freedom of Information Requests - Children's Services(CSC)
 
-This site/dashboard provides a summary of Freedom of Information (FOI) requests published via the following sources:
+This site/dashboard provides the summarisation of Freedom of Information (FOI) requests related to **Children’s Services**.  
+It aggregates data from multiple sources, making it easier for analysts to track, compare, and with the future intention to enable more efficient response processes to FOI requests for Children's Social Care data.
 
-- [whatdotheyknow.com](https://www.whatdotheyknow.com/search/)
-- [hastings.gov.uk](https://www.hastings.gov.uk/my-council/freedom-of-information/date/)
-- <span style="color:grey;">[opendata.camden.gov.uk](https://opendata.camden.gov.uk/stories/s/Camden-Freedom-Of-Information-Response-Search/) PENDING </span>
-- Local authority (colleague-)submitted records
+- Extract public FOI request records from sources such as:  
+
+    - [WhatDoTheyKnow.com](https://www.whatdotheyknow.com)   
+    - Direct from Local Borough Councils web sites where available.
+    - Direct(via email) from LA data/CSC team colleagues.  
+
 
 ## Remit
 The creation of an automated/timely CSC resource for FOI requests, provides potential for proactive codified/sql response development, collaborative efforts towards develop once distribute 153x(with any other local authorities who receive similar requests) as well as providing a base for possible FOI data analysis/insights. 
