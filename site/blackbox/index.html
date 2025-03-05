@@ -9,10 +9,8 @@
       
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../foi_requests_summary_v2/">
       
-      
-        <link rel="next" href="../foi_requests_summary_v1/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -215,6 +213,48 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../foi_requests_summary_v1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FOI Summary View1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foi_requests_summary_v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FOI Summary View2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -342,48 +382,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../foi_requests_summary_v1/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    FOI Summary View1
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../foi_requests_summary_v2/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    FOI Summary View2
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -405,91 +403,82 @@
 <p>This process automates the collection, filtering, and summarisation of Freedom of Information (FOI) requests related to <strong>Children’s Services</strong>.<br />
 It aggregates data from multiple sources, making it easier for analysts to track, compare, and with the future intention to enable more efficient response processes to FOI requests for Children's Social Care data.</p>
 <h2 id="what-this-process-does">What This Process Does</h2>
-<ol>
-<li><strong>Scrapes FOI Requests</strong>  </li>
-<li>Extract FOI request records from public sources such as:  <ul>
-<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a>  </li>
-<li><a href="https://www.hastings.gov.uk/my-council/freedom-of-information/date/">Hastings Borough Council FOI Archive</a>  </li>
+<p><strong>Scrapes FOI Requests</strong>  </p>
+<ul>
+<li>Extract public FOI request records from sources such as:  <ul>
+<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a>   </li>
+<li>Direct from Local Borough Councils web sites where available.</li>
+<li>Direct(via email) from LA data/CSC team colleagues.  </li>
 </ul>
 </li>
-<li>Retrieve request titles, status, dates, authorities, and URLs.</li>
-<li>
-<p>Identify duplicate or related requests across local authorities.</p>
-</li>
-<li>
+</ul>
 <p><strong>Filters and Cleans the Data</strong>  </p>
-</li>
-<li>Remove irrelevant requests (e.g., from non-LA bodies such as schools, police, or government departments).</li>
-<li>Normalise and standardise authority names to improve consistency.</li>
-<li>
-<p>Extract key identifiers (FOI reference numbers) where available.</p>
-</li>
-<li>
+<ul>
+<li>Retrieve request title, response status, submitted date, relevant authority/agency, and published response URL.  </li>
+<li>Identify duplicate or related requests across local authorities.  </li>
+<li>Remove irrelevant requests (e.g., from non-LA bodies such as schools, police, or government departments).  </li>
+<li>Normalise and standardise data (e.g. authority names) to improve consistency.  </li>
+<li>Extract key identifiers (FOI reference numbers) where available.  </li>
+</ul>
 <p><strong>Aggregates FOIs</strong>  </p>
-</li>
-<li>Counts how often each local authority receives requests related to Children’s Services (based on below search terms).</li>
-<li>Highlight requests that multiple authorities have received (indicating potential sector-wide trends).</li>
-<li>
-<p>Structured output formats for analysis and use.</p>
-</li>
-<li>
+<ul>
+<li>Counts how often each local authority receives requests related to Children’s Services (based on below search terms).  </li>
+<li>Highlight requests that multiple authorities have received (indicating potential sector-wide trends).  </li>
+<li>Structured output formats for analysis and use.  </li>
+</ul>
 <p><strong>Outputs Data in Multiple Formats</strong>  </p>
-</li>
-<li><strong>CSV File</strong> → Expanded data for external analysis (<code>foi_requests_summary.csv</code>).</li>
-<li><strong>MkDocs Pages</strong> → Limited data within integrated markdown pages for documentation and structured publishing.</li>
-</ol>
+<ul>
+<li><strong>CSV File</strong> → Expanded data for external analysis (<code>foi_requests_summary.csv</code>).  </li>
+<li><strong>MkDocs Pages</strong> → Limited data within integrated markdown pages for documentation and structured publishing.  </li>
+</ul>
 <hr />
 <h2 id="data-collection">Data collection</h2>
-<p>Collection methods vary depending on the source, with each platform publishing their own format/method/data. In general, the process searches published FOI records using predefined <strong>search terms</strong>. It extracts data directly from public FOI listings and refines/combines the results.<br />
-Current search terms being applied are:<br />
-["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs"].<br />
-Colleagues can assist by submitting suggestions for additional search terms where they observe that further relevant FOI requests are not currently being picked up from the source platforms. </p>
-<h3 id="handling-different-foi-sources">Handling Different FOI Sources</h3>
+<p>Collection methods vary depending on the source, with each platform publishing their own format/method/data.<br />
+In general, the process searches published FOI records using predefined <strong>search terms</strong>. It extracts data directly from public FOI listings and refines/combines the results.  </p>
+<p><strong>Current search terms being applied are:</strong>  </p>
 <ul>
-<li><strong>WhatDoTheyKnow.com</strong>  </li>
-<li>Search for FOI requests based on keywords.</li>
-<li>Extract request details from paginated search results.</li>
-<li>Identifies authority, request status, and response classification.</li>
-<li>
-<p>Match FOI reference numbers where available.</p>
-</li>
-<li>
+<li><code>["looked after children", "children in need", "childrens social care", "childrens services"]</code>  </li>
+<li><code>["care leavers", "child fostering", "foster carer", "adoption"]</code>   </li>
+<li><code>["care order", "family support", "special educational needs"]</code>  </li>
+</ul>
+<p>LA colleagues can assist by submitting suggestions for additional search terms where they observe that further relevant FOI requests are not currently being picked up from the source platforms. </p>
+<h3 id="handling-different-foi-sources">Handling Different FOI Sources</h3>
+<p><strong>WhatDoTheyKnow.com</strong>  </p>
+<ul>
+<li>Search for FOI requests based on keywords.  </li>
+<li>Extract request details from paginated search results.  </li>
+<li>Identifies authority, request status, and response classification.  </li>
+<li>Match FOI reference numbers where available.  </li>
+</ul>
 <p><strong>Hastings Borough Council FOI Archive</strong>  </p>
-</li>
-<li>Retrieve yearly FOI request records back to 2016.</li>
-<li>Extract request details from both summary pages and individual FOI entries.</li>
-<li>
-<p>Match FOI reference numbers from structured headings.</p>
-</li>
-<li>
+<ul>
+<li>Retrieve yearly FOI request records back to 2016.  </li>
+<li>Extract request details from both summary pages and individual FOI entries.  </li>
+<li>Match FOI reference numbers from structured headings.  </li>
+</ul>
 <p><strong>Local Authority Submitted Data</strong>  </p>
-</li>
-<li>Colleagues from various LAs can submit FOI details via CSV upload.</li>
-<li>These are merged with scraped data for a comprehensive dataset.</li>
+<ul>
+<li>Colleagues from various LAs can submit FOI details via CSV upload.  </li>
+<li>These are merged with scraped data for a comprehensive dataset.  </li>
 </ul>
 <hr />
 <h2 id="how-the-data-is-summarised">How the Data is Summarised</h2>
-<p>Once the FOI records are collected, they undergo <strong>further processing</strong>:</p>
+<p>Once the FOI records are collected, they undergo some basic further processing:</p>
+<p><strong>Authority-Level Aggregation</strong>  </p>
 <ul>
-<li><strong>Authority-Level Aggregation</strong>  </li>
-<li>Counts FOIs per local authority.</li>
-<li>
-<p>Flags requests that multiple LAs have received.</p>
-</li>
-<li>
-<p><strong>Cleaning and Formatting</strong>  </p>
-</li>
-<li>Converts long statuses (e.g., "Partially Successful") into shorter versions ("Partial").</li>
-<li>Shortens column headings to improve readability in web tables.</li>
-<li>
-<p>Formats request URLs into clickable links.</p>
-</li>
-<li>
-<p><strong>Dynamic Data Presentation</strong>  </p>
-</li>
-<li>Summarised pages show key FOI trends across LAs.</li>
-<li>Alternative view(s) offer a more detailed breakdown.</li>
+<li>Counts FOIs per local authority.  </li>
+<li>Flags requests that multiple LAs have received.  </li>
 </ul>
+<p><strong>Cleaning and Formatting</strong>  </p>
+<p>For some of the web/dashboard outputs, it's necessary to reformat some of the shown data/structure.</p>
+<ul>
+<li>Convert long statuses (e.g., "Partially Successful") into shorter versions ("Partial").  </li>
+<li>Shorten column headings to improve readability in web tables.  </li>
+<li>Format request URLs into clickable active links so colleagues can access the FOIR context &amp; detail.  </li>
+</ul>
+<p><strong>Dynamic Data Presentation</strong><br />
+  - Summarised pages show key FOI trends across LAs.<br />
+  - Alternative view(s) offer a more detailed breakdown.  </p>
 <hr />
 <h2 id="potential-use-cases">Potential use-cases</h2>
 <p>✅ <strong>Saves Time</strong> → Reduces the effort needed to locate and compare similar|sector FOI requests.<br />
