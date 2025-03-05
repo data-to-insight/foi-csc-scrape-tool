@@ -8,8 +8,7 @@ Is it possible to succinctly monitor submitted FOI requests? If yes, it might be
 
 In combination with deployment of the [Standard Safeguarding Dataset (SSD)] (https://github.com/data-to-insight/ssd-data-model), where data points for Child Social Care are both known and standardised, it would be possible to codify FOI solutions that could be distributed|utilised by any LA who has received the same or similar FOI request(s). By accessing a central FOI resource within the SSD Git repo, analysts could save hours of unpredictable time and effort. 
 
-Collaboration towards a CSC API data workflow
-Published: [data-to-insight.github.io/csc_api_data_collection](https://data-to-insight.github.io/csc_api_data_collection/)
+Published: [data-to-insight.github.io/foi-scrape-tool](https://data-to-insight.github.io/foi-scrape-tool/)
 
 ## Project| Repo File Overview
 
