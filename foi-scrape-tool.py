@@ -381,8 +381,7 @@ def transform_foi_data_list_format(df):
         pd.DataFrame: Transformed DataFrame with grouped FOI requests per authority.
     """
 
-    # Ensure the dataframe is sorted before grouping
-    df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
+    # df is/must arrive pre-sorted. 
 
     # Group by Authority Name and CSC FOIs on this LA
     grouped_df = (
@@ -391,7 +390,8 @@ def transform_foi_data_list_format(df):
             lambda x: pd.Series({
                 "FOI Requests": "<ul>" + "".join([
                     f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '  # Format FOIs as list items within the LA row
-                    f'({row["LAs with same Request"]} requests) '
+                    f'({int(row["LAs with same Request"]) if not pd.isna(row["LAs with same Request"]) else 0} requests) ' # non-numeric vals to NaN, Fill NaN to 0, Cast to int
+                    # f'({row["LAs with same Request"]} requests) '
                     f'<a href="{row["Request URL"]}" target="_blank">View FOI</a></li>' # include direct link to foi request source page detail
                     for _, row in x.iterrows()
                 ]) + "</ul>"
@@ -772,6 +772,7 @@ df = pd.concat([df_whatdotheyknow, df_hastings, df_la_submitted], ignore_index=T
 df = assign_ssd_foi_response_link(df)  # Add placeholder SSD FOI Query|Code Link col
 
 
+# Ensure the dataframe is sorted before grouping
 df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
 
 ## Outputs
