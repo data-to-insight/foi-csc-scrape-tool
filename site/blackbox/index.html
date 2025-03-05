@@ -1,0 +1,563 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../foi_requests_summary_v1/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+    
+    
+      
+        <title>Processing Detail - FOI Requests Dashboard</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.8608ea7d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/css/custom.css">
+    
+      <link rel="stylesheet" href="../assets/css/custom-wide.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#foi-scraping-summarisation-process" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FOI Requests Dashboard" class="md-header__button md-logo" aria-label="FOI Requests Dashboard" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FOI Requests Dashboard
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Processing Detail
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FOI Requests Dashboard" class="md-nav__button md-logo" aria-label="FOI Requests Dashboard" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    FOI Requests Dashboard
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Processing Detail
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Processing Detail
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-process-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      What This Process Does
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data collection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data collection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#handling-different-foi-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handling Different FOI Sources
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-data-is-summarised" class="md-nav__link">
+    <span class="md-ellipsis">
+      How the Data is Summarised
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#potential-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Potential use-cases
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-contribute" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to Contribute
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foi_requests_summary_v1/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FOI Summary View1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foi_requests_summary_v2/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FOI Summary View2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="foi-scraping-summarisation-process">FOI Scraping &amp; Summarisation Process</h1>
+<h2 id="overview">Overview</h2>
+<p>This process automates the collection, filtering, and summarisation of Freedom of Information (FOI) requests related to <strong>Children’s Services</strong>.<br />
+It aggregates data from multiple sources, making it easier for analysts to track, compare, and with the future intention to enable more efficient response processes to FOI requests for Children's Social Care data.</p>
+<h2 id="what-this-process-does">What This Process Does</h2>
+<ol>
+<li><strong>Scrapes FOI Requests</strong>  </li>
+<li>Extract FOI request records from public sources such as:  <ul>
+<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a>  </li>
+<li><a href="https://www.hastings.gov.uk/my-council/freedom-of-information/date/">Hastings Borough Council FOI Archive</a>  </li>
+</ul>
+</li>
+<li>Retrieve request titles, status, dates, authorities, and URLs.</li>
+<li>
+<p>Identify duplicate or related requests across local authorities.</p>
+</li>
+<li>
+<p><strong>Filters and Cleans the Data</strong>  </p>
+</li>
+<li>Remove irrelevant requests (e.g., from non-LA bodies such as schools, police, or government departments).</li>
+<li>Normalise and standardise authority names to improve consistency.</li>
+<li>
+<p>Extract key identifiers (FOI reference numbers) where available.</p>
+</li>
+<li>
+<p><strong>Aggregates FOIs</strong>  </p>
+</li>
+<li>Counts how often each local authority receives requests related to Children’s Services (based on below search terms).</li>
+<li>Highlight requests that multiple authorities have received (indicating potential sector-wide trends).</li>
+<li>
+<p>Structured output formats for analysis and use.</p>
+</li>
+<li>
+<p><strong>Outputs Data in Multiple Formats</strong>  </p>
+</li>
+<li><strong>CSV File</strong> → Expanded data for external analysis (<code>foi_requests_summary.csv</code>).</li>
+<li><strong>MkDocs Pages</strong> → Limited data within integrated markdown pages for documentation and structured publishing.</li>
+</ol>
+<hr />
+<h2 id="data-collection">Data collection</h2>
+<p>Collection methods vary depending on the source, with each platform publishing their own format/method/data. In general, the process searches published FOI records using predefined <strong>search terms</strong>. It extracts data directly from public FOI listings and refines/combines the results.<br />
+Current search terms being applied are:<br />
+["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs"].<br />
+Colleagues can assist by submitting suggestions for additional search terms where they observe that further relevant FOI requests are not currently being picked up from the source platforms. </p>
+<h3 id="handling-different-foi-sources">Handling Different FOI Sources</h3>
+<ul>
+<li><strong>WhatDoTheyKnow.com</strong>  </li>
+<li>Search for FOI requests based on keywords.</li>
+<li>Extract request details from paginated search results.</li>
+<li>Identifies authority, request status, and response classification.</li>
+<li>
+<p>Match FOI reference numbers where available.</p>
+</li>
+<li>
+<p><strong>Hastings Borough Council FOI Archive</strong>  </p>
+</li>
+<li>Retrieve yearly FOI request records back to 2016.</li>
+<li>Extract request details from both summary pages and individual FOI entries.</li>
+<li>
+<p>Match FOI reference numbers from structured headings.</p>
+</li>
+<li>
+<p><strong>Local Authority Submitted Data</strong>  </p>
+</li>
+<li>Colleagues from various LAs can submit FOI details via CSV upload.</li>
+<li>These are merged with scraped data for a comprehensive dataset.</li>
+</ul>
+<hr />
+<h2 id="how-the-data-is-summarised">How the Data is Summarised</h2>
+<p>Once the FOI records are collected, they undergo <strong>further processing</strong>:</p>
+<ul>
+<li><strong>Authority-Level Aggregation</strong>  </li>
+<li>Counts FOIs per local authority.</li>
+<li>
+<p>Flags requests that multiple LAs have received.</p>
+</li>
+<li>
+<p><strong>Cleaning and Formatting</strong>  </p>
+</li>
+<li>Converts long statuses (e.g., "Partially Successful") into shorter versions ("Partial").</li>
+<li>Shortens column headings to improve readability in web tables.</li>
+<li>
+<p>Formats request URLs into clickable links.</p>
+</li>
+<li>
+<p><strong>Dynamic Data Presentation</strong>  </p>
+</li>
+<li>Summarised pages show key FOI trends across LAs.</li>
+<li>Alternative view(s) offer a more detailed breakdown.</li>
+</ul>
+<hr />
+<h2 id="potential-use-cases">Potential use-cases</h2>
+<p>✅ <strong>Saves Time</strong> → Reduces the effort needed to locate and compare similar|sector FOI requests.<br />
+✅ <strong>Improves Consistency</strong> → Standardises data across multiple sources for easier analysis.<br />
+✅ <strong>Identifies Trends</strong> → Highlights sector-wide FOI topics that may require a coordinated response.<br />
+✅ <strong>Supports Collaboration</strong> → Encourages local authorities to share data and insights.<br />
+✅ <strong>Enables sector-driven FOI response</strong> → Integrated with the SSD, the potential for pre-developed, codified response solutions for data teams</p>
+<hr />
+<h2 id="how-to-contribute">How to Contribute</h2>
+<p>Local authority colleagues can:</p>
+<ul>
+<li><strong>Report Errors</strong> → If FOI entries don't display as expected or believed missing, send <a href="mailto:datatoinsight@gmail.com?subject=FOI%20Feedback">feedback &amp; corrections</a>.  </li>
+<li><strong>Submit FOI Requests</strong> → Add new FOI records to improve the dataset. Send details via <a href="mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&amp;body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E">this submission link</a>.</li>
+</ul>
+<p>By contributing, we can build a <strong>shared FOI intelligence resource</strong> that benefits all local authorities.</p>
+<hr />
+<p>This summary provides a <strong>high-level view</strong> of what the process does and how it helps in managing FOI requests. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tracking", "toc.integrate"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

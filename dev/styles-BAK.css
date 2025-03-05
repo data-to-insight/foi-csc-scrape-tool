@@ -1,0 +1,63 @@
+/* Widen container only for specific pages */
+.page-wide .md-main__inner {
+    max-width: 95%; /* Adjust width as needed */
+}
+
+
+/* 1. Reduce the width of the left-side navigation */
+.md-sidebar--primary {
+    width: 300px !important;  /* Adjust width (default is ~300px) */
+    max-width: 400px !important;
+}
+
+
+ /* 1. Force MkDocs main content to be full width */
+.md-content {
+    max-width: 100vw !important; /* Forces it to span the full viewport */
+    width: 100% !important; /* Ensures full width */
+    margin: 0 auto; /* Centers content */
+    padding: 0 2rem; /* Slight padding for better readability */
+}
+
+/* 2. Ensure table container expands fully */
+.md-typeset__table {
+    width: 100vw !important; /* Expand to full viewport width */
+    max-width: 100vw !important;
+    display: block;
+    overflow-x: visible; /* Ensure no horizontal scroll */
+}
+
+/* 3. Force tables to be full-width */
+.md-typeset table {
+    width: 100% !important; /* Full width inside the container */
+    max-width: none !important; /* Remove default restrictions */
+    display: table; /* Ensures table behaves properly */
+}
+
+/* 4. Prevent column content from breaking layout */
+.md-typeset table th,
+.md-typeset table td {
+    white-space: nowrap; /* Prevents text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Truncate overflow */
+    padding: 0.5rem; /* Adds some spacing */
+}
+
+/* 5. Force page layout to be as wide as possible */
+.md-grid {
+    max-width: 100vw !important; /* Ensures full width */
+    width: 100vw !important;
+}
+
+/* 6. Adjust the main section to ensure it's using full width */
+.md-main {
+    width: 100vw !important;
+    max-width: 100vw !important;
+}
+
+/* 7. Ensure the table section itself is using full width */
+.md-typeset__table table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: auto !important; /* Adjust column widths dynamically */
+}

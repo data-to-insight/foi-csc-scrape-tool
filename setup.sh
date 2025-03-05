@@ -20,4 +20,4 @@ echo "✅ Done. running scrape script..."
 # run scrape
 python foi-scrape-tool.py
 
-echo "🎉 Scrape process finished!"
+echo "🎉 Scrape process finished Whoohoo!"

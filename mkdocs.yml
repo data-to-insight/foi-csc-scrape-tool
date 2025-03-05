@@ -1,0 +1,17 @@
+site_name: FOI Requests Dashboard
+theme:
+  name: material
+  features:
+    - navigation.tracking  # Enables TOC scrolling (remove this if unwanted)
+    - toc.integrate  # Moves TOC inside the left nav (disable right TOC)
+
+
+nav:
+  - Home: index.md
+  - FOI Summary View1: foi_requests_summary_v1.md
+  - FOI Summary View2: foi_requests_summary_v2.md
+  - Processing Detail: blackbox.md
+  
+extra_css:
+  - assets/css/custom.css  # Global styles
+  - assets/css/custom-wide.css  # Wide layout for summary pages
