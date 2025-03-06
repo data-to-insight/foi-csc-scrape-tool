@@ -631,8 +631,6 @@ This summary is generated from publicly available data from the listed sources. 
  For details on each request, use the active 'View FOI' links in the table."""
 
     download_text = """\
-**Download:**
-
 An expanded raw data version, including some additional fields (e.g. FOIR), is available: [Download FOI request summary (CSV)](downloads/foi_csc_requests_summary.csv)
 """
 
@@ -641,8 +639,7 @@ An expanded raw data version, including some additional fields (e.g. FOIR), is a
 
 LA colleagues are encouraged to contribute. Use the following links to:
 
-- [Provide feedback or corrections](mailto:datatoinsight@gmail.com?subject=FOI%20Feedback)  
-- [Submit headline details(only) of any new FOI request made directly to your data team](mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E)
+- [Send feedback or corrections](mailto:datatoinsight@gmail.com?subject=FOI%20Feedback) and/or [Submit headline details(only) of relevant FOIR made to your LA](mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E)
 """  
 
 

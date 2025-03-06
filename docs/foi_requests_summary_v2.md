@@ -1,22 +1,12 @@
 **Disclaimer:**
 
-This summary is generated from publicly available data from the listed sources. Verify before using in reporting.
- Due to variations in formatting, some data may be incomplete or inaccurate.
- FOI requests into Scottish LAs and other related agencies are included for wider reference, potentially reduced to England-only LAs in the future.
- For details on each request, use the active 'View FOI' links in the table.
- 
- **Download:**
- 
-An expanded raw data version, including some additional fields (e.g. FOIR), is available: [Download FOI request summary (CSV)](downloads/foi_csc_requests_summary.csv)
-
+This summary is generated from publicly available data from the listed sources. Verify before using in reporting. Due to variations in formatting, some data may be incomplete or inaccurate. FOI requests into Scottish LAs and other related agencies are included for wider reference, potentially reduced to England-only LAs in the future. For details on each request, use the active 'View FOI' links in the table. An expanded raw data version, including some additional fields (e.g. FOIR), is available: [Download FOI request summary (CSV)](downloads/foi_csc_requests_summary.csv)
 
 **Collaborate:**
 
 LA colleagues are encouraged to contribute. Use the following links to:
 
-- [Provide feedback or corrections](mailto:datatoinsight@gmail.com?subject=FOI%20Feedback)  
-- [Submit headline details(only) of any new FOI request made directly to your data team](mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E)
-
+- [Provide feedback or corrections](mailto:datatoinsight@gmail.com?subject=FOI%20Feedback and/or [Submit headline details(only) of relevant FOI requests made to your LA](mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E)
 
 **Summary last updated:** 06 March 2025 13:27
 
