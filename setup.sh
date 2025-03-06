@@ -15,9 +15,9 @@ pip install --upgrade pip
 # required dependencies
 pip install -r requirements.txt
 
-echo "✅ Done. running scrape script..."
+echo "✅ Done setup. Now running scrape script..."
 
 # run scrape
 python foi-scrape-tool.py
 
-echo "🎉 Scrape process finished Whoohoo!"
+# echo "🎉 Scrape process finished Whoohoo!"
