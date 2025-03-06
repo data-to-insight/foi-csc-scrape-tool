@@ -630,8 +630,9 @@ This summary is generated from publicly available data from the listed sources. 
  FOI requests into Scottish LAs and other related agencies are included for wider reference, potentially reduced to England-only LAs in the future.
  For details on each request, use the active 'View FOI' links in the table."""
 
-download_text = """\
+    download_text = """\
 **Download:**
+
 An expanded raw data version, including some additional fields (e.g. FOIR), is available: [Download FOI request summary (CSV)](downloads/foi_csc_requests_summary.csv)
 """
 
@@ -679,7 +680,7 @@ LA colleagues are encouraged to contribute. Use the following links to:
 
 
     # Combine all text content
-    md_content = f"{disclaimer_text}{download_text}\n\n{contribute_text}\n\n{last_updated_text}\n{df_md}"
+    md_content = f"{disclaimer_text}\n{download_text}\n\n{contribute_text}\n\n{last_updated_text}\n{df_md}"
 
     # Ensure docs directory exists
     os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -783,7 +784,7 @@ df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, Fals
 
 # CSV output
 df_csv_output = df[["FOIR", "Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "Source", "Search Term", "SSD-FOIR"]]
-df_csv_output.to_csv("downloads/foi_csc_requests_summary.csv", index=False)
+df_csv_output.to_csv("docs/downloads/foi_csc_requests_summary.csv", index=False)
 
 
 # reduce cols for ease of formatting on web
