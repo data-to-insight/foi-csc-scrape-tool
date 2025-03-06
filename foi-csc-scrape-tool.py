@@ -747,12 +747,11 @@ def shorten_status_labels(df):
 
     return df
 
-    return df
-
 
 # search terms used against scraped site searches, incl whattheyknow 
 search_terms = ["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", 
-                "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs"]
+                "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs", "CIN", "serious case reviews"
+                "17254803", "caseload", "child protection"]
 
 
 
