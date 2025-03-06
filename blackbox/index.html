@@ -404,14 +404,11 @@
 It aggregates data from multiple sources, making it easier for analysts to track, compare, and with the future intention to enable more efficient response processes to FOI requests for Children's Social Care data.</p>
 <h2 id="what-this-process-does">What This Process Does</h2>
 <p><strong>Scrapes FOI Requests</strong>  </p>
-<ul>
-<li>Extract public FOI request records from sources such as:  <ul>
-<li><a href="https://www.whatdotheyknow.com">WhatDoTheyKnow.com</a>   </li>
-<li>Direct from Local Borough Councils web sites where available.</li>
-<li>Direct(via email) from LA data/CSC team colleagues.  </li>
-</ul>
-</li>
-</ul>
+<p>Any scraping of public platforms will where possible timed to run during non-business or off-peak hours, with in-script consideration (e.g. delayed requests, mimic normal user behaviour) given to avoid both site-overloading and any potential blocking of other users. We extract public FOI request records from sources such as:  </p>
+<pre><code> - [WhatDoTheyKnow.com](https://www.whatdotheyknow.com)   
+ - Direct from Local Borough Councils web sites where available.
+ - Direct(via email) from LA data/CSC team colleagues.
+</code></pre>
 <p><strong>Filters and Cleans the Data</strong>  </p>
 <ul>
 <li>Retrieve request title, response status, submitted date, relevant authority/agency, and published response URL.  </li>
@@ -433,13 +430,14 @@ It aggregates data from multiple sources, making it easier for analysts to track
 </ul>
 <hr />
 <h2 id="data-collection">Data collection</h2>
-<p>Collection methods vary depending on the source, with each platform publishing their own format/method/data.<br />
-In general, the process searches published FOI records using predefined <strong>search terms</strong>. It extracts data directly from public FOI listings and refines/combines the results.  </p>
+<p>Collection methods vary depending on the source, with each platform publishing their own format/method/data. In general, the process searches published FOI records using relevant <strong>search terms</strong>. Extracting data directly from public FOI listings and refining/combining the results. Avoiding the use of a search term approach would be preferred as it's the least optimised approach, however due to the nature of where and how FOI data is published, the options are very limited. This is an aspect of the project development that will remain in review until possible to refactor around any future improved options. </p>
 <p><strong>Current search terms being applied are:</strong>  </p>
 <ul>
 <li><code>["looked after children", "children in need", "childrens social care", "childrens services"]</code>  </li>
 <li><code>["care leavers", "child fostering", "foster carer", "adoption"]</code>   </li>
 <li><code>["care order", "family support", "special educational needs"]</code>  </li>
+<li><code>["CIN", "child protection", "serious case reviews", "caseloads"]</code>  </li>
+<li>We additionally search for specific known FOIR where these are known to have relevance, but potentially not caught within existing term-searches.</li>
 </ul>
 <p>LA colleagues can assist by submitting suggestions for additional search terms where they observe that further relevant FOI requests are not currently being picked up from the source platforms. </p>
 <h3 id="handling-different-foi-sources">Handling Different FOI Sources</h3>
@@ -470,22 +468,25 @@ In general, the process searches published FOI records using predefined <strong>
 <li>Flags requests that multiple LAs have received.  </li>
 </ul>
 <p><strong>Cleaning and Formatting</strong>  </p>
-<p>For some of the web/dashboard outputs, it's necessary to reformat some of the shown data/structure.</p>
+<p>For some of the web/dashboard outputs, it's necessary to reformat/reduce some of the shown data/structure.</p>
 <ul>
 <li>Convert long statuses (e.g., "Partially Successful") into shorter versions ("Partial").  </li>
 <li>Shorten column headings to improve readability in web tables.  </li>
-<li>Format request URLs into clickable active links so colleagues can access the FOIR context &amp; detail.  </li>
+<li>Format request URLs into clickable active links so colleagues can access the FOIR context &amp; detail.</li>
+<li>Remove sparse columns from display, e.g. FOIR, FOI-SSD (these are retained in the csv download)  </li>
 </ul>
-<p><strong>Dynamic Data Presentation</strong><br />
-  - Summarised pages show key FOI trends across LAs.<br />
-  - Alternative view(s) offer a more detailed breakdown.  </p>
+<p><strong>Dynamic Data Presentation</strong>  </p>
+<ul>
+<li>Summarised pages show key FOI trends across LAs.  </li>
+<li>Alternative view(s) offer a more detailed breakdown.  </li>
+</ul>
 <hr />
 <h2 id="potential-use-cases">Potential use-cases</h2>
-<p>✅ <strong>Saves Time</strong> → Reduces the effort needed to locate and compare similar|sector FOI requests.<br />
-✅ <strong>Improves Consistency</strong> → Standardises data across multiple sources for easier analysis.<br />
-✅ <strong>Identifies Trends</strong> → Highlights sector-wide FOI topics that may require a coordinated response.<br />
-✅ <strong>Supports Collaboration</strong> → Encourages local authorities to share data and insights.<br />
-✅ <strong>Enables sector-driven FOI response</strong> → Integrated with the SSD, the potential for pre-developed, codified response solutions for data teams</p>
+<p><strong>Saves Time</strong> → Reduces the effort needed to locate and compare similar|sector FOI requests.<br />
+<strong>Improves Consistency</strong> → Standardises data across multiple sources for easier analysis.<br />
+<strong>Identifies Trends</strong> → Highlights sector-wide FOI topics that may require a coordinated response.<br />
+<strong>Supports Collaboration</strong> → Encourages local authorities to share data and insights.<br />
+<strong>Enables sector-driven FOI response</strong> → Integrated with the SSD, the potential for pre-developed, codified response solutions for data teams</p>
 <hr />
 <h2 id="how-to-contribute">How to Contribute</h2>
 <p>Local authority colleagues can:</p>
@@ -495,7 +496,7 @@ In general, the process searches published FOI records using predefined <strong>
 </ul>
 <p>By contributing, we can build a <strong>shared FOI intelligence resource</strong> that benefits all local authorities.</p>
 <hr />
-<p>This summary provides a <strong>high-level view</strong> of what the process does and how it helps in managing FOI requests. </p>
+<p>This summary provides a <strong>high-level view</strong> of what the process does. Colleagues are welcome to review the code base within the associated open <a href="https://github.com/data-to-insight/foi-csc-scrape-tool">git repo</a>.</p>
 
 
 
