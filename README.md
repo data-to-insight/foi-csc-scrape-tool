@@ -22,8 +22,10 @@ tbc
 * `mkdocs serve`            - live-reload docs server
 * `mkdocs serve -a 127.0.0.1:8080`  - serve on new port if blocked
 
-* `mkdocs gh-deploy`        - push to Gitpage front-end(public)
+* `mkdocs gh-deploy`        - push new changes(only) to Gitpage front-end(public)
+* `mkdocs gh-deploy --force`- push full rebuild and redeployment to Gitpage front-end(public)
 
+## mkdocs problem solving
 * `pkill mkdocs`            - kill any running MkDocs process
 * `lsof -i :8000`           - kill running 
 * `kill -9 12345`           - kill process (Replace 12345 with PID)

@@ -381,7 +381,9 @@ def transform_foi_data_list_format(df):
         pd.DataFrame: Transformed DataFrame with grouped FOI requests per authority.
     """
 
-    # df is/must arrive pre-sorted. 
+    # sorting before grouping(should already be, but to review)
+    df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
+
 
     # Group by Authority Name and CSC FOIs on this LA
     grouped_df = (
@@ -393,10 +395,11 @@ def transform_foi_data_list_format(df):
                     f'({int(row["LAs with same Request"]) if not pd.isna(row["LAs with same Request"]) else 0} requests) ' # non-numeric vals to NaN, Fill NaN to 0, Cast to int
                     # f'({row["LAs with same Request"]} requests) '
                     f'<a href="{row["Request URL"]}" target="_blank">View FOI</a></li>' # include direct link to foi request source page detail
-                    for _, row in x.iterrows()
+                    # for _, row in x.iterrows()
+                    for _, row in x.sort_values(by="Request Date", ascending=False).iterrows()  # incl. sorting
                 ]) + "</ul>"
             }),
-            include_groups=False  # Explicitly exclude grouping columns (fixes deprecation warning)
+            include_groups=False  # exclude grouping columns (fixes deprecation warning)
         )
         .reset_index(drop=True)  
     )
@@ -625,10 +628,11 @@ def save_to_mkdocs(df, filename="docs/index.md"):
     disclaimer_text = """\
 **Disclaimer:**
 
-This summary is generated from publicly available data from the listed sources. Verify before using in reporting.
- Due to variations in formatting, some data may be incomplete or inaccurate.
- FOI requests into Scottish LAs and other related agencies are included for wider reference, potentially reduced to England-only LAs in the future.
- For details on each request, use the active 'View FOI' links in the table."""
+This summary is generated from publicly available data from the listed sources. Verify before using in critical reporting. 
+Due to variations in source data formatting, some data may be incomplete, mis-represented or inaccurate. 
+FOI requests into Scottish LAs and other related agencies are included for wider reference, potentially reduced to England-only LAs in the future. 
+For details on each request, use the active 'View FOI' links in the table. 
+An expanded raw data version, including some additional fields (e.g. FOIR), is available: [Download FOI request summary (CSV)](downloads/foi_csc_requests_summary.csv)"""
 
     download_text = """\
 An expanded raw data version, including some additional fields (e.g. FOIR), is available: [Download FOI request summary (CSV)](downloads/foi_csc_requests_summary.csv)
@@ -637,9 +641,9 @@ An expanded raw data version, including some additional fields (e.g. FOIR), is a
     contribute_text = """\
 **Collaborate:**
 
-LA colleagues are encouraged to contribute. Use the following links to:
-
-- [Send feedback or corrections](mailto:datatoinsight@gmail.com?subject=FOI%20Feedback) and/or [Submit headline details(only) of relevant FOIR made to your LA](mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E)
+LA colleagues are encouraged to join the network|contribute:  
+[Send feedback or corrections](mailto:datatoinsight@gmail.com?subject=FOI%20Feedback) 
+and/or [Submit headline details(only) of relevant FOI request made to your LA](mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E)
 """  
 
 
@@ -717,9 +721,10 @@ def shorten_headings_for_web(df):
     return df
 
 
+
 def shorten_status_labels(df):
     """
-    Shorten vals in 'Status' col to fit available browser/table space within summary table
+    Shorten vals in 'Status' col to fit available browser/table space within summary table.
 
     Args:
         df (pd.DataFrame): FOI request data.
@@ -729,21 +734,24 @@ def shorten_status_labels(df):
     """
 
     status_map = {
-        "Awaiting classification": "Awaiting",
-        "Information not held": "Not Held",
-        "Long overdue": "Overdue",
-        "Partially successful": "Partial",
-        "Successful": "Success",
-        "Withdrawn by the requester": "Withdrawn"
+        "awaiting classification": "Awaiting",
+        "waiting clarification": "Clarification",
+        "information not held": "Not Held",
+        "long overdue": "Overdue",
+        "overdue": "Overdue",
+        "partially successful": "Partial",
+        "successful": "Success",
+        "withdrawn by the requester": "Withdrawn",
+        "awaiting internal review": "Int. Review",
+        "refused": "Refused"
     }
 
-    # Apply mapping only if 'Status' column exists
     if "Status" in df.columns:
-        df["Status"] = df["Status"].str.lower().str.strip() 
-        for pattern, replacement in status_map.items():
-            df["Status"] = df["Status"].apply(lambda x: re.sub(pattern, replacement, x, flags=re.IGNORECASE))
+        df["Status"] = df["Status"].str.lower().str.strip()  
+        df["Status"] = df["Status"].replace(status_map)  
 
     return df
+
 
 
 # search terms used against scraped site searches, incl whattheyknow 
@@ -774,7 +782,7 @@ df = pd.concat([df_whatdotheyknow, df_hastings, df_la_submitted], ignore_index=T
 df = assign_ssd_foi_response_link(df)  # Add placeholder SSD FOI Query|Code Link col
 
 
-# Ensure the dataframe is sorted before grouping
+# Ensure sorted before grouping
 df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
 
 ## Outputs
@@ -791,6 +799,7 @@ df_html_output = df[["FOIR", "Status", "Request Date", "CSC FOIs on this LA", "A
 df_html_output_grouped = transform_foi_data_list_format(df_html_output) # summarised view by LA/Agency
 
 
+## the below needs refactoring! 
 
 # # into htmlk versions (previous)
 # save_to_html(df_html_output_grouped, filename="index.html", alternative_view=True) # Save main/index summarised view 
