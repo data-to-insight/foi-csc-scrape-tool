@@ -382,6 +382,7 @@ def transform_foi_data_list_format(df):
     """
 
     # sorting before grouping(should already be, but to review)
+    df["Request Date"] = pd.to_datetime(df["Request Date"], format="%d/%m/%Y", errors="coerce")
     df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
 
 
@@ -391,12 +392,30 @@ def transform_foi_data_list_format(df):
         .apply(
             lambda x: pd.Series({
                 "FOI Requests": "<ul>" + "".join([
-                    f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '  # Format FOIs as list items within the LA row
+                    f'<li><b>{row["Request Date"].strftime("%d/%m/%Y") if pd.notna(row["Request Date"]) else "Unknown"}</b>: '
+                    # f'<li><b>{row["Request Date"]}</b>: {row["Status"]} - {row["Request Title"]} '  # Format FOIs as list items within the LA row
                     f'({int(row["LAs with same Request"]) if not pd.isna(row["LAs with same Request"]) else 0} requests) ' # non-numeric vals to NaN, Fill NaN to 0, Cast to int
                     # f'({row["LAs with same Request"]} requests) '
                     f'<a href="{row["Request URL"]}" target="_blank">View FOI</a></li>' # include direct link to foi request source page detail
                     # for _, row in x.iterrows()
                     for _, row in x.sort_values(by="Request Date", ascending=False).iterrows()  # incl. sorting
+                ]) + "</ul>"
+            }),
+            include_groups=False  # exclude grouping columns (fixes deprecation warning)
+        )
+        .reset_index(drop=True)  
+    )
+
+    grouped_df = (
+        df.groupby(["Authority Name", "CSC FOIs on this LA"], as_index=False)
+        .apply(
+            lambda x: pd.Series({
+                "FOI Requests": "<ul>" + "".join([
+                    f'<li><b>{row["Request Date"].strftime("%d/%m/%Y") if pd.notna(row["Request Date"]) else "Unknown"}</b>: ' # Format FOIs as list items within the LA row,
+                    f'{row["Status"]} - {row["Request Title"]} '                                                               # - need .strftime otherwise retains 00 timestamps
+                    f'({int(row["LAs with same Request"]) if not pd.isna(row["LAs with same Request"]) else 0} requests) ' # non-numeric vals to NaN, Fill NaN to 0, Cast to int
+                    f'<a href="{row["Request URL"]}" target="_blank">View FOI</a></li>' # # include active link to foi source page detail
+                    for _, row in x.sort_values(by="Request Date", ascending=False).iterrows()  # Sort within group
                 ]) + "</ul>"
             }),
             include_groups=False  # exclude grouping columns (fixes deprecation warning)
@@ -670,6 +689,11 @@ and/or [Submit headline details(only) of relevant FOI request made to your LA](m
     #     col_index = df.columns.get_loc("FOI Requests") # index of "Request Title" column
     #     max_widths[col_index] = 200  # Set limit for "Request Title"
 
+    # Convert datetime back to string in DD/MM/YYYY format
+    # prevent any weirdness/unexpected output within the markdown/mkdocs process
+    if "Request Date" in df.columns:
+        df["Request Date"] = df["Request Date"].dt.strftime("%d/%m/%Y")
+
     df_md = tabulate(df, headers="keys", tablefmt="github", numalign="left", stralign="left", maxcolwidths=max_widths, showindex=False)
 
     # # opt 2 (markdown)
@@ -783,6 +807,7 @@ df = assign_ssd_foi_response_link(df)  # Add placeholder SSD FOI Query|Code Link
 
 
 # Ensure sorted before grouping
+df["Request Date"] = pd.to_datetime(df["Request Date"], format="%d/%m/%Y", errors="coerce")
 df = df.sort_values(by=["Authority Name", "Request Date"], ascending=[True, False])
 
 ## Outputs
