@@ -26,17 +26,17 @@ sccm_alignment:
 
     - name: ChildrenWithinSocialCare
       label: Children Within Social Care
-      description: Children whose data is held and managed by the CSC service
+      description: Children whose data is held and managed by the CSC service, typically those for whom a referral has been made.
       type: PERSON
 
     - name: CMS
-      label: Case Management System
-      description: A proprietary or custom data system used by a Local Authority to manage CSC cases
+      label: CMS
+      description: A proprietary(or custom) data system used by a Local Authority to manage CSC cases
       type: RESOURCE
 
     - name: StandardSafeguardingDataset
-      label: Standard Safeguarding Dataset (SSD)
-      description: A standardised schema and middleware layer for harmonising CSC data across LAs
+      label: SSD
+      description: A data schema or middleware layer for standardising CSC data structure across LAs
       type: METHOD
 
     - name: CSCDataExtractEvent
@@ -55,18 +55,18 @@ sccm_alignment:
         - payload_type
 
     - name: PayloadSubmissionLog
-      label: API Submission Log
+      label: CSC API Submission Log
       description: Internal tracking of submission and DfE response for each payload
       type: ACCOUNT
 
     - name: DepartmentForEducation
-      label: Department for Education (DfE)
+      label: DfE
       description: The UK government department responsible for education and children's services
       type: ORGANIZATION
 
     - name: DfEPrivateDashboard
-      label: DfE Private Dashboard
-      description: A dashboard for visualising and comparing CSC indicators at the LA and national level
+      label: DfE Private API Dashboard
+      description: A provate LA dashboard powered via the api data for visualising and comparing CSC indicators at local (and national?) level
       type: RESOURCE
 
     - name: Place
