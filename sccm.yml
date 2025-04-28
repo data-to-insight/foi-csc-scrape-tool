@@ -1,0 +1,198 @@
+project:
+  name: CSC_API_Data_Flows
+  description: >
+    A D2I solution for extracting standardised Children’s Social Care (CSC) data from Local Authorities’ Case Management Systems (CMS),
+    transforming it into a Standard Safeguarding Dataset (SSD), and transmitting it daily to the Department for Education’s (DfE) CSC API
+    for benchmarking, insight, and sector learning.
+
+sccm_alignment:
+  entities:
+    - name: CSC_API_Data_Flows
+      label: CSC API Data Flows Tool
+      description: A D2I tool that extracts, standardises, and transmits CSC data to the DfE daily via API
+      type: METHOD
+
+    - name: LocalAuthority
+      label: Local Authority
+      description: An administrative body responsible for children’s services
+      type: ORGANIZATION
+      properties:
+        - la_code
+
+    - name: LocalAuthorityChildrensSocialCare
+      label: LA Children’s Social Care
+      description: A service team within a Local Authority responsible for delivering CSC services
+      type: SERVICE
+
+    - name: ChildrenWithinSocialCare
+      label: Children Within Social Care
+      description: Children whose data is held and managed by the CSC service
+      type: PERSON
+
+    - name: CMS
+      label: Case Management System
+      description: A proprietary or custom data system used by a Local Authority to manage CSC cases
+      type: RESOURCE
+
+    - name: StandardSafeguardingDataset
+      label: Standard Safeguarding Dataset (SSD)
+      description: A standardised schema and middleware layer for harmonising CSC data across LAs
+      type: METHOD
+
+    - name: CSCDataExtractEvent
+      label: CSC API Extract Event
+      description: A daily extraction and transformation of CSC data into SSD-compliant format
+      type: EVENT
+      properties:
+        - event_date
+
+    - name: CSCDataPayload
+      label: CSC API Payload
+      description: JSON payload representing the full or partial CSC data submitted to DfE
+      type: OBJECT
+      properties:
+        - submission_date
+        - payload_type
+
+    - name: PayloadSubmissionLog
+      label: API Submission Log
+      description: Internal tracking of submission and DfE response for each payload
+      type: ACCOUNT
+
+    - name: DepartmentForEducation
+      label: Department for Education (DfE)
+      description: The UK government department responsible for education and children's services
+      type: ORGANIZATION
+
+    - name: DfEPrivateDashboard
+      label: DfE Private Dashboard
+      description: A dashboard for visualising and comparing CSC indicators at the LA and national level
+      type: RESOURCE
+
+    - name: Place
+      label: Local Authority Area
+      description: The geographic area served by a Local Authority
+      type: PLACE
+
+    - name: Region
+      label: Region in England
+      description: Statistical area grouping multiple Local Authorities
+      type: PLACE
+
+  relationships:
+    - subject: LocalAuthority
+      predicate: is_located_in
+      object: Place
+
+    - subject: Place
+      predicate: is_part_of
+      object: Region
+
+    - subject: LocalAuthority
+      predicate: provides
+      object: LocalAuthorityChildrensSocialCare
+
+    - subject: LocalAuthorityChildrensSocialCare
+      predicate: serves
+      object: ChildrenWithinSocialCare
+
+    - subject: LocalAuthorityChildrensSocialCare
+      predicate: records
+      object: ChildrenWithinSocialCare
+
+    - subject: LocalAuthority
+      predicate: uses
+      object: CMS
+
+    - subject: LocalAuthority
+      predicate: compares_with
+      object: LocalAuthority
+      label: compares_with
+
+    - subject: CMS
+      predicate: feeds
+      object: StandardSafeguardingDataset
+
+    - subject: StandardSafeguardingDataset
+      predicate: maps_from
+      object: CMS
+
+    - subject: CSC_API_Data_Flows
+      predicate: initiates
+      object: CSCDataExtractEvent
+
+    - subject: CSCDataExtractEvent
+      predicate: uses
+      object: StandardSafeguardingDataset
+
+    - subject: CSCDataExtractEvent
+      predicate: produces
+      object: CSCDataPayload
+
+    - subject: CSCDataPayload
+      predicate: recorded_in
+      object: PayloadSubmissionLog
+
+    - subject: CSCDataPayload
+      predicate: sent_to
+      object: DepartmentForEducation
+
+    - subject: CSCDataPayload
+      predicate: informs
+      object: DfEPrivateDashboard
+
+    - subject: DepartmentForEducation
+      predicate: populates
+      object: DfEPrivateDashboard
+
+    - subject: DepartmentForEducation
+      predicate: updates
+      object: PayloadSubmissionLog
+
+    - subject: LocalAuthority
+      predicate: informed_by
+      object: DfEPrivateDashboard
+
+
+
+
+
+
+# --- SCCM Concept Type Reference (based on PAS 182) ---
+# Use the following as values for `type:` fields in sccm_alignment entities.
+
+# ITEM GROUPS
+# --------------------------------------------
+# AGENT         : PERSON or ORGANIZATION that provides services or acts in an EVENT 
+# ITEM          : discrete thing (can be physical or abstract)
+# ABSTRACT      : Non-physical ITEM (e.g. SERVICE, CASE, OBJECTIVE, RULE)
+# OBJECT        : physical ITEM (e.g. building, sensor, road)
+# COLLECTION    : grouping of ITEMs (e.g. dashboard, summary, dataset)
+
+# CONCEPT TYPES (Main concepts)
+# --------------------------------------------
+# PERSON        : An individual human being
+# ORGANIZATION  : group of persons with shared goal (e.g. LA, NHS Trust)
+# PLACE         : geographic position or region (e.g. LA area, postcode)
+# SERVICE       : The capability to carry out a function/method (e.g. social care)
+# EVENT         : Something that happens (e.g. inspection, application)
+# STATE         : condition or circumstance of an ITEM (e.g. judgement outcome)
+# OBSERVATION   : type of EVENT in which STATE is recorded (e.g. score, grade)
+# PLAN          : Steps with resources and times to reach target state
+# CASE          : container of EVENTs arising from SERVICE usage (e.g. care case)
+# METHOD        : defined procedure to carry out task (e.g. data scrape, triage)
+# OBJECTIVE     : desired outcome (e.g. improve housing, reduce risk)
+# TARGET        : desired future STATE
+# RESOURCE      : An ITEM used by an AGENT to deliver SERVICE (e.g. funding, people)
+# AGREEMENT     : An arrangement between AGENTs (e.g. contract, MOU)
+# ACCOUNT       : record of EVENTs related to an ITEM (e.g. care history)
+
+# OTHER USEFUL TYPES
+# --------------------------------------------
+# COMMUNITY     : group of PERSONs/ORGANIZATIONs sharing traits or goals (e.g. LIIA)
+# FUNCTION      : COLLECTION of SERVICEs grouped for purpose (e.g. child protection)
+# RULE          : regulation or constraint (e.g. legislation, eligibility)
+# DECISION      : conclusion reached by an AGENT
+# ASSUMPTION    : forecast or expected STATE used for planning
+
+# Note: These types are semantic labels — spelling must match exactly (e.g. ORGANIZATION not Organisation).
