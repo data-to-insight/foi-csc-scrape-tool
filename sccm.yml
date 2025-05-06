@@ -4,7 +4,10 @@ project:
     A D2I solution for extracting standardised Children’s Social Care (CSC) data from Local Authorities’ Case Management Systems (CMS),
     transforming it into a Standard Safeguarding Dataset (SSD), and transmitting it daily to the Department for Education’s (DfE) CSC API
     for benchmarking, insight, and sector learning.
-
+  managed_by:
+    - DatatoInsight
+  stakeholders: []
+    
 sccm_alignment:
   entities:
     - name: CSC_API_Data_Flows
