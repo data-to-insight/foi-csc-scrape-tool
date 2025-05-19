@@ -7,7 +7,7 @@ on:
     branches: ["main"]
   schedule:
     # - cron: '0 5 * * *' # 05:00 UTC
-    - cron: '20 11 * * *' # 11:20 UTC daily
+    - cron: '0 5 * * 1'   # weekly: Monday (1) at 05:00 UTC
 
 permissions:
   contents: write  # Allow repo updates
