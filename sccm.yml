@@ -1,18 +1,17 @@
 project:
-  name: CSC_API_Data_Flows
+  name: foi-csc-scrape-tool
   description: >
-    A D2I solution for extracting standardised Children’s Social Care (CSC) data from Local Authorities’ Case Management Systems (CMS),
-    transforming it into a Standard Safeguarding Dataset (SSD), and transmitting it daily to the Department for Education’s (DfE) CSC API
-    for benchmarking, insight, and sector learning.
+    tbc - template yml only. In progress. The entities and relations below are not yet relevant to this tool. 
+    
   managed_by:
     - DatatoInsight
   stakeholders: []
     
 sccm_alignment:
   entities:
-    - name: CSC_API_Data_Flows
-      label: CSC API Data Flows Tool
-      description: A D2I tool that extracts, standardises, and transmits CSC data to the DfE daily via API
+    - name: foi-csc-scrape-tool
+      label: FOI CSC Tool
+      description: A D2I tool that extracts, ..... 
       type: METHOD
 
     - name: LocalAuthority
