@@ -49,6 +49,12 @@ jobs:
       - name: Build MkDocs site
         run: mkdocs build  # → generates ./site/
 
+
+      - name: Show generated site/ contents # sanity check to view in workflow console outputs
+        run: |
+          echo "---- site/ directory after build ----"
+          ls -R site
+
       - name: Commit any updated Markdown content
         run: |
           git config --local user.email "action@github.com"
