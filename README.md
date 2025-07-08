@@ -1,3 +1,19 @@
+---
+title: FOI Scrape
+authors:
+- Rob Harrison
+status: draft
+last_updated: '2025-06-10T08:34:43Z'
+tags:
+- FOI
+- Scrape
+tech_stack:
+- python
+- excel
+- csv
+- mkdocs
+---
+
 # FOI Whisper Network 
 ### FOI scrape tool(s) and related data processing 
 
