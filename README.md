@@ -72,9 +72,7 @@ This will:
 
 ## Future Adaptability  
 
-The scraper **currently focuses on whattheyknow wite**, but could be **extended** to cover other available sources, such as:  
-
-- **tbc**  
+The scraper **currently pulls data primarily from the whattheyknow site**, but could be **extended** to cover other available sources.
 
 ---
 
@@ -82,5 +80,5 @@ The scraper **currently focuses on whattheyknow wite**, but could be **extended*
 
 This tool is still **in early dev/alpha**, and changes/improvements are ongoing. If you encounter any issues, incorrect data extraction, or have suggestions, feel free to:  
 
-- **Open an issue** in this GitHub repo  (not yet available)
+- [**Add ticket|feature request to backlog**](https://github.com/orgs/data-to-insight/projects/15) 
 - **Email us** at [datatoinsight.enquiries@gmail.com](mailto:datatoinsight.enquiries@gmail.com)  
