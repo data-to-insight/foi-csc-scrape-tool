@@ -964,6 +964,7 @@ df_csv_output.to_csv("docs/downloads/foi_csc_requests_summary.csv", index=False)
 
 # reduce cols for ease of formatting on web
 df_html_output = df[[
+    "Authority Name",
     "FOIR",
     "Status",
     "Request Date",
