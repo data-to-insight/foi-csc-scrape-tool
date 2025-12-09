@@ -1,6 +1,8 @@
 
 # Freedom of Information Requests - Children's Services(CSC)
 
+**Important: Unfortunately our primary source of FOI data has altered it's approach to allowing scrape access. As such, for the short|medium-term we're unable to provide FOI aggregation overview and this tool is considered on-hold.** 
+
 This site/dashboard provides the summarisation of Freedom of Information (FOI) requests related to **Children’s Services**.  
 It aggregates data from multiple sources, making it easier for analysts to track, compare, and with the future intention to enable more efficient response processes to FOI requests for Children's Social Care data.
 

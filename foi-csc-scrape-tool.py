@@ -1,19 +1,38 @@
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, FeatureNotFound
 import pandas as pd
 import time
 from datetime import datetime, timedelta
 import re
 import os # mkdoc use
 from tabulate import tabulate # summary output
+import html  # unescaping embedded HTML in <content>
+from urllib.parse import urlparse, quote, quote_plus # include encoder helpers
 
-from urllib.parse import urlparse
 
-import certifi
+import certifi # ready for certifi.where() wired in
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # intrim - mask Unverified HTTPS request warns
 
-DEBUG = False # limit scrape depth and search breadth for testing
+
+# create one session so cookies etc are reused
+SESSION = requests.Session()
+SESSION.headers.update({
+    # more realistic UA than bare "Mozilla/5.0"
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/122.0.0.0 Safari/537.36"
+    ),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "image/avif,image/webp,image/apng,*/*;q=0.8"
+    ),
+    "Accept-Language": "en-GB,en;q=0.9",
+    "Connection": "keep-alive",
+})
+
+DEBUG = False # limit scrape depth and search breadth for tests
 
 
 # add sources / 
@@ -29,40 +48,74 @@ BASE_URLS = {
 def get_soup(url, max_attempts=2, delay=2):
     """
     Retrieve BeautifulSoup object from URL with retry handling.
-
-    Args:
-        url (str): Target webpage URL.
-        max_attempts (int): Number of retry attempts. Defaults to 2.
-        delay (int): Delay in seconds between retries. Defaults to 2.
-
-    Returns:
-        BeautifulSoup or None: Parsed HTML content or None if request fails.
+    Chooses HTML vs XML parser based on content type or URL,
+    and handles Hastings TLS separately
     """
+
+    parsed = urlparse(url)
+    netloc = parsed.netloc.lower()
+
+    # Referer per domain
+    if "whatdotheyknow.com" in netloc:
+        referer = f"{parsed.scheme}://{parsed.netloc}/search"
+    elif "hastings.gov.uk" in netloc:
+        referer = f"{parsed.scheme}://{parsed.netloc}/my-council/freedom-of-information/date/"
+    else:
+        referer = f"{parsed.scheme}://{parsed.netloc}/"
+
+    headers = {"Referer": referer}
+
+    # TLS behaviour per domain
+    if "hastings.gov.uk" in netloc:
+        # Hastings cert chain is flaky in this environment
+        verify = False
+    else:
+        verify = True  # or certifi.where() if you decide to use certifi
 
     for attempt in range(1, max_attempts + 1):
         try:
-            response = requests.get(
+            resp = SESSION.get(
                 url,
-                headers={"User-Agent": "Mozilla/5.0"},
+                headers=headers,
                 timeout=10,
-                verify=False  # Disable SSL verification
-                #  verify=certifi.where()  # SSL certificate verification
-
+                verify=verify,
+                allow_redirects=True,
             )
-            response.raise_for_status()
-            return BeautifulSoup(response.content, "html.parser")
+
+            if resp.status_code == 403 and "whatdotheyknow.com" in netloc:
+                print(f"Attempt {attempt} got 403 Forbidden for {url}")
+                # fall through to retry or bail out below
+            else:
+                resp.raise_for_status()
+
+                content_type = resp.headers.get("Content-Type", "").lower()
+                is_feed = "xml" in content_type or "/feed/" in parsed.path
+
+                if is_feed:
+                    # Try XML parser first, fall back to HTML if not available
+                    try:
+                        return BeautifulSoup(resp.content, "xml")
+                    except FeatureNotFound:
+                        return BeautifulSoup(resp.content, "html.parser")
+                else:
+                    return BeautifulSoup(resp.content, "html.parser")
 
         except requests.exceptions.SSLError as ssl_err:
             print(f"SSL Error on attempt {attempt}: {ssl_err}. Trying again...")
-
         except requests.RequestException as e:
             print(f"Attempt {attempt} failed: {e}")
 
         if attempt < max_attempts:
             time.sleep(delay)
         else:
-            print(f"Progress to next search: {attempt} of {max_attempts} page fails suggests we reached end of paginated search results.")
+            print(
+                f"Progress to next search: {attempt} of {max_attempts} "
+                f"page fails suggests we reached end of paginated search results."
+            )
             return None
+
+
+
 
 
 def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None, start_year=None, end_year=2016):
@@ -178,90 +231,164 @@ def scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=None, s
 
 def scrape_whatdotheyknow(search_terms, base_url, max_pages):
     """
-    Scrape FOI requests from WhatDoTheyKnow based on search terms.
+    Scrape FOI requests from WhatDoTheyKnow based on search terms,
+    using the Atom feed and the embedded request_listing HTML.
 
     Args:
         search_terms (list): Keywords to filter relevant FOI requests.
-        base_url (str): WhatDoTheyKnow search URL.
-        max_pages (int): Maximum number of pages to scrape.
+        base_url (str): WhatDoTheyKnow search base URL,
+                        for example "https://www.whatdotheyknow.com/search/".
+        max_pages (int): Maximum number of pages to scrape (None means no limit).
 
     Returns:
-        list: Scraped FOI request records.
+        list: Scraped FOI request records as a list of dicts.
     """
 
     all_data = []
-    
+
+    # Derive the feed base from the HTML base, eg
+    # https://www.whatdotheyknow.com/search/
+    # -> https://www.whatdotheyknow.com/feed/search/
+    parsed_base = urlparse(base_url)
+    feed_base = f"{parsed_base.scheme}://{parsed_base.netloc}/feed/search/"
+
     for search_term in search_terms:
         page = 1
-        while True:
-            if max_pages and page > max_pages:
-                break
-            
-            search_url = f"{base_url}{search_term.replace(' ', '%20')}?page={page}&query={search_term.replace(' ', '+')}"
-            print(f"Scraping: {search_url}")
-            
-            soup = get_soup(search_url)
+
+
+
+        term_path = quote(search_term, safe="")      # "children in need" -> "children%20in%20need"
+        term_query = quote_plus(search_term)        # "children in need" -> "children+in+need"
+
+        # Atom feeds from WDTK are not paginated in the same way as HTML
+        # so we clamp to a single page per search term
+        while page <= 1:
+            # you can ignore max_pages here, it does not help for feeds
+            # if max_pages is 0 or None this still runs once
+
+            if max_pages is not None and max_pages < 1:
+                break  # defensive guard if you ever pass max_pages=0
+
+            if page == 1:
+                feed_url = f"{feed_base}{term_path}/requests?query={term_query}"
+            else:
+                # this else will not be hit because page only ever equals 1
+                feed_url = f"{feed_base}{term_path}/requests?page={page}&query={term_query}"
+
+            print(f"Fetching Atom feed: {feed_url}")
+
+            soup = get_soup(feed_url)
             if not soup:
                 break
-            
-            results = soup.find_all("div", class_="request_listing")
-            if not results:
-                print("No more results found, stopping.")
-                break
-            
-            for result in results:
-                try:
-                    # Extract title and request URL
-                    title_element = result.find("a")
-                    request_title = title_element.text.strip()
-                    request_url = "https://www.whatdotheyknow.com" + title_element["href"]
-                    request_url_cleaned = title_element["href"].replace("/request/", "")
-                    
-                    # Extract authority information
-                    requester_element = result.find("div", class_="requester")
-                    authority_element = requester_element.find("a", href=True) if requester_element else None
-                    authority_url = authority_element["href"] if authority_element else "Unknown"
-                    authority_url_cleaned = authority_element["href"].replace("https://www.whatdotheyknow.com/body/", "") if authority_element else "Unknown"
-                    authority_name = authority_element.text.strip() if authority_element else "Unknown"
-                    
-                    # Extract request status
-                    status_element = result.find("strong")
-                    request_status = status_element.text.strip() if status_element else "Unknown"
-                    
-                    # Extract request date
-                    date_element = requester_element.find("time") if requester_element else None
-                    request_date = date_element["datetime"] if date_element else "Unknown"
-                    if request_date != "Unknown":
-                        request_date = datetime.strptime(request_date[:10], "%Y-%m-%d").strftime("%d/%m/%Y")
-                                        
-                    # Extract FOI reference number
-                    desc_element = result.find("span", class_="desc")
-                    foi_reference_number = ""
-                    if desc_element:
-                        match = re.search(r"\[FOI #(\d+)", desc_element.text)
-                        if match:
-                            foi_reference_number = match.group(1)
 
-                    all_data.append({
-                        "Source": "WhatDoTheyKnow",
-                        "Search Term": search_term,
-                        "FOIR": foi_reference_number,
-                        "Request Title": request_title,
-                        "Request URL": request_url,
-                        "Request URL Cleaned": request_url_cleaned,
-                        "Authority Name": authority_name,
-                        "Authority URL": authority_url,
-                        "Authority ID": authority_url_cleaned,
-                        "Status": request_status,
-                        "Request Date": request_date
-                    })
+            entries = soup.find_all("entry")
+            if not entries:
+                print("No <entry> elements found in feed, stopping this term.")
+                break
+
+            for entry in entries:
+                try:
+                    # Title and request URL (note, these are request_event URLs)
+                    title_el = entry.find("title")
+                    link_el = entry.find("link", {"type": "text/html"}) or entry.find("link")
+
+                    if not title_el or not link_el or not link_el.get("href"):
+                        continue
+
+                    request_title = title_el.get_text(strip=True)
+                    request_url = link_el["href"]
+
+                    # Normalise relative links
+                    if request_url.startswith("/"):
+                        request_url = f"{parsed_base.scheme}://{parsed_base.netloc}{request_url}"
+
+                    # Cleaned URL, will usually be an InfoRequestEvent id now
+                    request_url_cleaned = (
+                        request_url.replace("https://www.whatdotheyknow.com/request_event/", "")
+                                   .replace("https://www.whatdotheyknow.com/request/", "")
+                                   .strip("/")
+                    )
+
+                    # Defaults, in case we cannot parse the embedded HTML
+                    authority_name = "Unknown"
+                    authority_url = "Unknown"
+                    authority_id = "Unknown"
+                    request_status = "Unknown"
+                    request_date = "Unknown"
+                    foi_reference_number = ""
+
+                    # The <content> element holds the same request_listing HTML
+                    # you used to scrape from the search page
+                    content_el = entry.find("content")
+                    if content_el:
+                        # text is HTML escaped, eg &lt;div class="request_listing"&gt;...
+                        inner_html = html.unescape(content_el.string or content_el.get_text())
+                        listing_soup = BeautifulSoup(inner_html, "html.parser")
+                        listing_div = listing_soup.find("div", class_="request_listing")
+
+                        if listing_div:
+                            requester_element = listing_div.find("div", class_="requester")
+                            if requester_element:
+                                # Authority link is the first <a> in the requester block
+                                authority_element = requester_element.find("a", href=True)
+                                if authority_element:
+                                    authority_url = authority_element["href"]
+                                    authority_name = authority_element.get_text(strip=True)
+                                    authority_id = authority_url.replace(
+                                        "https://www.whatdotheyknow.com/body/", ""
+                                    )
+
+                                # Request date from <time datetime="...">
+                                date_element = requester_element.find("time")
+                                if date_element and date_element.has_attr("datetime"):
+                                    raw_date = date_element["datetime"][:10]
+                                    try:
+                                        request_date = datetime.strptime(
+                                            raw_date, "%Y-%m-%d"
+                                        ).strftime("%d/%m/%Y")
+                                    except ValueError:
+                                        request_date = "Unknown"
+
+                            # Status from the <strong> element
+                            status_element = listing_div.find("strong")
+                            if status_element:
+                                request_status = status_element.get_text(strip=True)
+
+                            # FOI reference number from the desc span where present
+                            desc_element = listing_div.find("span", class_="desc")
+                            if desc_element:
+                                desc_text = desc_element.get_text(" ", strip=True)
+                                match = re.search(r"\[FOI #(\d+)", desc_text)
+                                if match:
+                                    foi_reference_number = match.group(1)
+
+                    all_data.append(
+                        {
+                            "Source": "WhatDoTheyKnow",
+                            "Search Term": search_term,
+                            "FOIR": foi_reference_number,
+                            "Request Title": request_title,
+                            "Request URL": request_url,
+                            "Request URL Cleaned": request_url_cleaned,
+                            "Authority Name": authority_name,
+                            "Authority URL": authority_url,
+                            "Authority ID": authority_id,
+                            "Status": request_status,
+                            "Request Date": request_date,
+                        }
+                    )
+
                 except Exception as e:
-                    print(f"Error parsing result: {e}")
-            
+                    print(f"Error parsing Atom entry: {e}")
+
             page += 1
-            time.sleep(2)  # Avoid overloading the site
-    
+            time.sleep(2)
+
     return all_data
+
+
+
+
 
 
 def scrape_hastings_foi(search_terms, base_url, start_year=None, end_year=2016):
@@ -794,6 +921,11 @@ else:
 # Generate FOI data records
 df_whatdotheyknow = scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=max_pages) # scraped FOIs from web
 df_hastings = scrape_foi_requests(search_terms, source="HastingsCouncil") # scraped FOIs from Hastings Council
+
+# debug
+print(f"Total WhatDoTheyKnow rows: {len(df_whatdotheyknow)}")
+print(df_whatdotheyknow.head(5).to_markdown(index=False))
+
 
 df_la_submitted = import_append_la_foi() # LA submitted FOIs from csv file
 
