@@ -14,6 +14,8 @@ pip install --upgrade pip
 
 # required dependencies
 pip install -r requirements.txt
+# pip install -r requirements-dev.txt # full bloated dev version
+
 # pip install --upgrade --force-reinstall -r requirements.txt
 # /home/codespace/.python/current/bin/python -m pip install -r requirements.txt
 
