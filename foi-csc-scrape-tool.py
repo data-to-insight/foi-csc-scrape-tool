@@ -37,7 +37,7 @@ DEBUG = False # limit scrape depth and search breadth for tests
 
 # add sources / 
 BASE_URLS = {
-    "WhatDoTheyKnow": "https://www.whatdotheyknow.com/search/",
+    # "WhatDoTheyKnow": "https://www.whatdotheyknow.com/search/",
     "HastingsCouncil": "https://www.hastings.gov.uk/my-council/freedom-of-information/date/"
     # to do:
     # https://opendata.camden.gov.uk/stories/s/Camden-Freedom-Of-Information-Response-Search/dwzc-va83/
@@ -507,6 +507,8 @@ def transform_foi_data_list_format(df):
     Returns:
         pd.DataFrame: Transformed DataFrame with grouped FOI requests per authority.
     """
+    # avoid SettingWithCopyWarning
+    df = df.copy()
 
     # sorting before grouping(should already be, but to review)
     df["Request Date"] = pd.to_datetime(df["Request Date"], format="%d/%m/%Y", errors="coerce")
@@ -595,14 +597,17 @@ def import_append_la_foi(external_data_file="uploads/submitted_foi.csv"):
         extra_df = pd.read_csv(external_data_file, dtype=str)  # Read all as strings to avoid type issues
 
         if extra_df.empty:
+            # this is expected behaviour if we have no local/manual submitted fois stored yet
             print(f"Extra data file '{external_data_file}' contains headers but no data. Returning empty DataFrame.")
             return pd.DataFrame(columns=extra_df.columns)  # Return empty df
 
+        # or we did have some locally stored
         print(f"Loaded additional FOI data from {external_data_file}.")
         return extra_df  # Return new df
 
     except FileNotFoundError:
-        print(f"No extra data file found: {external_data_file}. Returning empty DataFrame.")
+        # someone accidentally removed|renamed the .csv file
+        print(f"No extra data file found (removed|renamed?): {external_data_file}. Returning empty DataFrame.")
     except pd.errors.EmptyDataError:
         print(f"Extra data file '{external_data_file}' is empty (no headers or rows). Returning empty DataFrame.")
 
@@ -906,9 +911,12 @@ def shorten_status_labels(df):
 
 
 # search terms used against scraped site searches, incl whattheyknow 
-search_terms = ["looked after children", "children in need", "care leavers", "childrens social care", "child fostering", "childrens services", 
-                "foster carer", "social workers", "adoption", "care order", "family support", "special educational needs", "CIN", "serious case reviews"
-                "17254803", "caseload", "child protection"]
+search_terms = [
+    "looked after children", "children in need", "care leavers", "childrens social care",
+    "child fostering", "childrens services", "foster carer", "social workers", "adoption",
+    "care order", "family support", "special educational needs", "CIN",
+    "serious case reviews", "17254803", "caseload", "child protection"
+]
 
 
 
@@ -919,12 +927,17 @@ else:
     max_pages = None  # No limit in production
 
 # Generate FOI data records
-df_whatdotheyknow = scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=max_pages) # scraped FOIs from web
-df_hastings = scrape_foi_requests(search_terms, source="HastingsCouncil") # scraped FOIs from Hastings Council
 
-# debug
+# For now we are not scraping WhatDoTheyKnow, keep placeholder
+# df_whatdotheyknow = scrape_foi_requests(search_terms, source="WhatDoTheyKnow", max_pages=max_pages)
+df_whatdotheyknow = pd.DataFrame()  # empty placeholder
+
+# Only run Hastings scrape
+df_hastings = scrape_foi_requests(search_terms, source="HastingsCouncil")
+
+# Optional debug, safe even if df_whatdotheyknow is empty
 print(f"Total WhatDoTheyKnow rows: {len(df_whatdotheyknow)}")
-print(df_whatdotheyknow.head(5).to_markdown(index=False))
+
 
 
 df_la_submitted = import_append_la_foi() # LA submitted FOIs from csv file
@@ -950,7 +963,16 @@ df_csv_output.to_csv("docs/downloads/foi_csc_requests_summary.csv", index=False)
 
 
 # reduce cols for ease of formatting on web
-df_html_output = df[["FOIR", "Status", "Request Date", "CSC FOIs on this LA", "Authority Name", "Request Title", "LAs with same Request", "Request URL", "SSD-FOIR"]]
+df_html_output = df[[
+    "FOIR",
+    "Status",
+    "Request Date",
+    "CSC FOIs on this LA",
+    "Request Title",
+    "LAs with same Request",
+    "Request URL",
+    "SSD-FOIR",
+]].copy()
 
 # expanded output view from default df_html_output
 df_html_output_grouped = transform_foi_data_list_format(df_html_output) # summarised view by LA/Agency
