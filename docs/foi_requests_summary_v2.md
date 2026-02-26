@@ -15,7 +15,7 @@ LA colleagues are encouraged to join the network|contribute:
 and/or [Submit headline details(only) of relevant FOI request made to your LA](mailto:datatoinsight@gmail.com?subject=FOI%20details%20to%20add&body=Authority-Name:%20%3Cla-name%3E%0AAuthority-Code:%20%3Cla-code%3E%0ARequest-Title:%20%3Crequest-title%3E)
 
 
-**Summary last updated:** 19 February 2026 09:50
+**Summary last updated:** 26 February 2026 09:50
 
 | Authority Name           | Status   | Request Date   | LA CSC FOIs   | Request Title                                                                                      | FOI distributed   | Request URL                                                                                                                  |
 |--------------------------|----------|----------------|---------------|----------------------------------------------------------------------------------------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------|
